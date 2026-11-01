@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% load fa %}
+{% block title %}{{ contact_content.title|default:"تماس با ما" }} | {{ site_settings.business_name }}{% endblock %}
+{% block meta_description %}{% if contact_content and contact_content.intro %}{{ contact_content.intro }}{% else %}راه‌های ارتباط با {{ site_settings.business_name }}{% endif %}{% endblock %}
+
+{% block content %}
+<section class="relative overflow-hidden border-b border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900">
+  <div class="pointer-events-none absolute inset-x-0 top-0 h-full bg-line-grid opacity-60 [mask-image:linear-gradient(to_bottom,black,transparent)]" aria-hidden="true"></div>
+  <div class="relative mx-auto max-w-6xl px-4 py-12 md:py-16">
+    {% breadcrumbs "صفحه اصلی|/;تماس با ما|" %}
+    <div class="mt-5 flex items-center gap-2">
+      <span class="badge-pulse-dot text-emerald-500" aria-hidden="true"></span>
+      <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">پاسخگویی سریع و آماده اعزام</span>
+    </div>
+    <h1 class="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white md:text-4xl">{{ contact_content.title }}</h1>
+    {% if contact_content.intro %}
+    <p class="mt-3 max-w-3xl leading-8 text-slate-600 dark:text-slate-300">{{ contact_content.intro }}</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="mx-auto max-w-6xl px-4 py-12">
+  <div class="grid gap-6 md:grid-cols-3">
+    <!-- Phone contact card -->
+    <a href="{% tel_href site_settings.business_phone %}"
+       class="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-7 shadow-card transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-400 dark:hover:border-brand-600 hover:shadow-xl">
+      <div class="surface-sheen pointer-events-none absolute inset-x-0 top-0 h-24 opacity-60" aria-hidden="true"></div>
+      <div>
+        <div class="flex items-center justify-between">
+          <span class="grid h-12 w-12 place-items-center rounded-2xl bg-brand-50 dark:bg-brand-950/70 text-brand-600 dark:text-brand-300 ring-1 ring-brand-100 dark:ring-brand-900/60 transition-all duration-300 group-hover:bg-brand-600 group-hover:text-white">
+            {% lucide "phone" "w-6 h-6" %}
+          </span>
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 px-2.5 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-300">
+            <span class="badge-pulse-dot text-emerald-500"></span>
+            پاسخگوی مستقیم
+          </span>
+        </div>
+        <h2 class="mt-5 text-xl font-extrabold text-slate-900 dark:text-white">تماس تلفنی با کارشناس</h2>
+        <p class="num mt-3 text-2xl font-black text-brand-600 dark:text-brand-400 group-hover:text-brand-700">{{ site_settings.business_phone|fa_digits }}</p>
+        <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">برای مشاوره تلفنی فوری و هماهنگی سریع کلیک کنید</p>
+      </div>
+      <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-sm font-bold text-brand-600 dark:text-brand-400">
+        <span>برقراری تماس</span>
+        {% lucide "arrow-left" "w-4 h-4 transition-transform group-hover:-translate-x-1" %}
+      </div>
+    </a>
+
+    <!-- Working hours card -->
+    <div class="relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-7 shadow-card">
+      <div class="surface-sheen pointer-events-none absolute inset-x-0 top-0 h-24 opacity-60" aria-hidden="true"></div>
+      <div>
+        <div class="flex items-center justify-between">
+          <span class="grid h-12 w-12 place-items-center rounded-2xl bg-amber-50 dark:bg-amber-950/70 text-amber-600 dark:text-amber-400 ring-1 ring-amber-100 dark:ring-amber-900/60">
+            {% lucide "clock" "w-6 h-6" %}
+          </span>
+          <span class="rounded-full bg-slate-100 dark:bg-slate-800 px-2.5 py-1 text-xs font-bold text-slate-600 dark:text-slate-300">
+            هفت روز هفته
+          </span>
+        </div>
+        <h2 class="mt-5 text-xl font-extrabold text-slate-900 dark:text-white">ساعات کاری و پاسخگویی</h2>
+        <p class="mt-3 whitespace-pre-line text-sm leading-8 text-slate-600 dark:text-slate-300">{{ site_settings.working_hours|default:"همه‌روزه از ساعت ۸:۰۰ تا ۲۱:۰۰ (حتی روزهای تعطیل)" }}</p>
+      </div>
+      <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 text-xs font-medium text-slate-500 dark:text-slate-400">
+        ثبت درخواست آنلاین در ۲۴ ساعت شبانه‌روز فعال است
+      </div>
+    </div>
+
+    <!-- Address card -->
+    <div class="relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-7 shadow-card">
+      <div class="surface-sheen pointer-events-none absolute inset-x-0 top-0 h-24 opacity-60" aria-hidden="true"></div>
+      <div>
+        <div class="flex items-center justify-between">
+          <span class="grid h-12 w-12 place-items-center rounded-2xl bg-sky-50 dark:bg-sky-950/70 text-sky-600 dark:text-sky-400 ring-1 ring-sky-100 dark:ring-sky-900/60">
+            {% lucide "map-pin" "w-6 h-6" %}
+          </span>
+          <span class="rounded-full bg-slate-100 dark:bg-slate-800 px-2.5 py-1 text-xs font-bold text-slate-600 dark:text-slate-300">
+            سراسر {{ site_settings.province }}
+          </span>
+        </div>
+        <h2 class="mt-5 text-xl font-extrabold text-slate-900 dark:text-white">محدوده تحت پوشش</h2>
+        <p class="mt-3 text-sm leading-8 text-slate-600 dark:text-slate-300">
+          {{ site_settings.province }}{% if site_settings.address %}، {{ site_settings.address }}{% endif %}
+        </p>
+        <p class="mt-2 text-xs leading-6 text-slate-500 dark:text-slate-400">سرویس‌کاران در مناطق مختلف مستقر بوده و تعمیرات تماماً در محل مشتری انجام می‌پذیرد.</p>
+      </div>
+      <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 text-xs font-medium text-slate-500 dark:text-slate-400">
+        اعزام سریع به تمام محله‌ها
+      </div>
+    </div>
+  </div>
+
+  <!-- Online request action box -->
+  <div class="relative mt-12 overflow-hidden texture-grain rounded-3xl bg-gradient-to-l from-brand-700 to-brand-600 dark:from-brand-900 dark:to-brand-800 p-8 text-white shadow-xl md:p-10">
+    <div class="pointer-events-none absolute inset-0 bg-dot-grid opacity-40" aria-hidden="true"></div>
+    <div class="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+      <div>
+        {% if default_service %}
+        <h2 class="text-2xl font-extrabold md:text-3xl">نیاز به {{ default_service.name }} دارید؟</h2>
+        {% else %}
+        <h2 class="text-2xl font-extrabold md:text-3xl">دستگاه‌تان نیاز به عیب‌یابی و تعمیر دارد؟</h2>
+        {% endif %}
+        <p class="mt-2.5 max-w-xl text-sm leading-7 text-brand-100">سریع‌ترین راه ثبت درخواست آنلاین در چند قدم است؛ پس از ثبت، کارشناس بلافاصله برای هماهنگی با شما تماس خواهد گرفت.</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-3 shrink-0">
+        <a href="{% url 'requests:start' %}{% if default_service %}?service={{ default_service.pk }}{% endif %}"
+           class="flex items-center gap-2 rounded-xl bg-cta-500 px-6 py-3.5 text-base font-extrabold text-slate-900 shadow-card transition hover:bg-cta-600 hover:text-white active:scale-[0.98]">
+          {% lucide "clipboard-pen" "w-5 h-5" %} ثبت درخواست آنلاین
+        </a>
+        <a href="{% tel_href site_settings.business_phone %}"
+           class="num flex items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-5 py-3.5 text-base font-bold text-white backdrop-blur transition hover:bg-white/20 active:scale-[0.98]">
+          {% lucide "phone" "w-5 h-5" %} {{ site_settings.business_phone|fa_digits }}
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

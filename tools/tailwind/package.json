@@ -1,0 +1,12 @@
+{
+  "name": "tamirat-baradaran-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Build tooling for Tailwind CSS (no Node runtime needed in production)",
+  "scripts": {
+    "build": "tailwindcss -i tailwind.css -o ../../static/css/app.css --minify"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.8"
+  }
+}

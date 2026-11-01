@@ -1,0 +1,13 @@
+# Pin the versions you deploy with. cPanel's "Setup Python App" installs
+# from this file, so keep it exact.
+Django>=5.2,<5.3
+requests==2.32.5
+python-dotenv==1.1.1
+dj-database-url==3.0.1
+whitenoise==6.9.0
+Pillow==11.3.0
+
+# Pure-python MySQL driver — works on shared cPanel hosts where
+# mysqlclient (C extension) often fails to compile. passenger_wsgi.py
+# installs it as the `mysql` backend automatically.
+PyMySQL==1.1.2

@@ -1,0 +1,114 @@
+{% load static fa %}<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <script>
+    // Anti-FOUC: apply the saved theme before first paint.
+    (function () {
+      try {
+        var t = localStorage.getItem("theme");
+        if (!t) t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        var m = document.querySelector('meta[name="color-scheme"]');
+        if (t === "dark") {
+          document.documentElement.setAttribute("data-theme", "dark");
+          if (m) m.setAttribute("content", "dark");
+        } else {
+          document.documentElement.removeAttribute("data-theme");
+          if (m) m.setAttribute("content", "light");
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <title>{% block title %}{{ site_settings.effective_seo_title }}{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}{{ site_settings.default_meta_description }}{% endblock %}">
+  <meta name="keywords" content="{% block meta_keywords %}{{ site_settings.business_name }}{% endblock %}">
+  <link rel="canonical" href="{% block canonical %}{{ request.build_absolute_uri }}{% endblock %}">
+  {% block robots %}{% endblock %}
+  {% if site_settings.favicon %}
+    <link rel="icon" href="{{ site_settings.favicon.url }}">
+  {% else %}
+    <link rel="icon" type="image/svg+xml" href="{% static 'img/logo.svg' %}">
+  {% endif %}
+
+  {% block og %}
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="{{ site_settings.business_name }}">
+  <meta property="og:locale" content="fa_IR">
+  <meta property="og:title" content="{% block og_title %}{{ site_settings.effective_seo_title }}{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}{{ site_settings.default_meta_description }}{% endblock %}">
+  <meta property="og:url" content="{{ request.build_absolute_uri }}">
+  {% block og_image %}{% if site_settings.default_og_image %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ site_settings.default_og_image.url }}">{% else %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo.svg' %}">{% endif %}{% endblock %}
+
+  <!-- Twitter / X Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{% block twitter_title %}{{ site_settings.effective_seo_title }}{% endblock %}">
+  <meta name="twitter:description" content="{% block twitter_description %}{{ site_settings.default_meta_description }}{% endblock %}">
+  {% block twitter_image %}{% if site_settings.default_og_image %}<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ site_settings.default_og_image.url }}">{% else %}<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo.svg' %}">{% endif %}{% endblock %}
+  {% endblock %}
+
+  <link rel="preload" href="{% static 'fonts/Vazirmatn-Regular.woff2' %}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{% static 'fonts/Vazirmatn-Bold.woff2' %}" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+
+  {% block json_ld %}{% endblock %}
+
+  <!-- Site-wide entity schemas (GEO) -->
+  <script type="application/ld+json">{% include "partials/schema_organization.html" %}</script>
+  <script type="application/ld+json">{% include "partials/schema_website.html" %}</script>
+  {% block webpage_schema %}<script type="application/ld+json">{% include "partials/schema_webpage.html" %}</script>{% endblock %}
+</head>
+<body class="min-h-screen bg-slate-50 font-sans text-slate-800 antialiased flex flex-col dark:bg-slate-950 dark:text-slate-200">
+
+  {% include "partials/header.html" %}
+
+  <script src="{% static 'js/theme.js' %}"></script>
+
+  <main class="flex-1">
+    {% include "partials/django_messages.html" %}
+    {% block content %}{% endblock %}
+  </main>
+
+  {% include "partials/footer.html" %}
+
+  {# Spacer so the sticky mobile CTA bar never covers page-bottom content (form buttons, footer links). #}
+  <div class="h-24 md:hidden" aria-hidden="true"></div>
+
+  {# BreadcrumbList schema — see breadcrumb_jsonld tag; JSON-LD is valid in body. #}
+  {% breadcrumb_jsonld %}
+
+  <!-- Sticky conversion bar — mobile only (hidden ≥768px) -->
+  <div class="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200/80 bg-white/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden dark:border-slate-800/80 dark:bg-slate-900/90 shadow-2xl">
+    <div class="mx-auto grid max-w-lg grid-cols-2 gap-2.5 px-3 py-2.5">
+      <a href="{% url 'requests:start' %}"
+         class="flex items-center justify-center gap-1.5 rounded-xl bg-cta-500 py-3 text-sm font-extrabold text-slate-950 shadow-md shadow-cta-500/20 transition hover:bg-cta-600 hover:text-white active:scale-[0.97]">
+        {% lucide "clipboard-pen" "w-4 h-4" %}
+        ثبت درخواست
+      </a>
+      <a href="{% tel_href site_settings.business_phone %}"
+         class="flex items-center justify-center gap-1.5 rounded-xl bg-brand-600 py-3 text-sm font-extrabold text-white shadow-md shadow-brand-600/20 transition hover:bg-brand-700 active:scale-[0.97]">
+        {% lucide "phone" "w-4 h-4" %}
+        <span class="num">{{ site_settings.business_phone|fa_digits }}</span>
+      </a>
+    </div>
+  </div>
+  <div class="h-[68px] md:hidden" aria-hidden="true"></div>
+
+  <script>
+    // Mobile menu (no framework needed)
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      const btn = document.getElementById('mobile-menu-btn');
+      if (!menu) return;
+      const open = menu.classList.toggle('hidden') === false;
+      if (btn) btn.setAttribute('aria-expanded', String(open));
+    }
+  </script>
+  <script defer src="{% static 'js/lucide-icons.js' %}"></script>
+  <script defer src="{% static 'js/accordion.js' %}"></script>
+  <script defer src="{% static 'js/alpine.min.js' %}"></script>
+  <style>[x-cloak]{display:none!important}</style>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,231 @@
+{% load fa %}
+<header class="sticky top-0 z-40 border-b border-slate-200/70 bg-white/85 backdrop-blur-md dark:border-slate-800/80 dark:bg-slate-900/85 transition-colors duration-200">
+  <div class="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 md:h-20 md:gap-4">
+    <!-- Logo / brand -->
+    <a href="/" class="flex shrink-0 items-center gap-2.5 group" aria-label="{{ site_settings.business_name }}">
+      <span class="block h-10 w-10 shrink-0 transition-transform duration-200 group-hover:scale-105">
+        {% include "partials/logo.html" with logo_class="h-10 w-10" %}
+      </span>
+      <span class="leading-tight">
+        <span class="block text-base font-extrabold tracking-tight text-slate-900 dark:text-white">
+          <span class="text-brand-600 dark:text-brand-400">{{ site_settings.business_name|first_word }}</span>{% if site_settings.business_name|rest_words %} <span>{{ site_settings.business_name|rest_words }}</span>{% endif %}
+        </span>
+        <span class="mt-0.5 inline-flex items-center gap-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400">
+          <span class="badge-pulse-dot text-emerald-500" aria-hidden="true"></span>
+          <span>تعمیر و سرویس لوازم خانگی در {{ site_settings.city }}</span>
+        </span>
+      </span>
+    </a>
+
+    <!-- Desktop nav -->
+    <nav class="mr-auto hidden items-center gap-1.5 md:flex" aria-label="منوی اصلی">
+      {% url 'services:list' as url_services %}
+      {% url 'brands:list' as url_brands %}
+      {% url 'core:about' as url_about %}
+      {% url 'core:faq' as url_faq %}
+      {% url 'core:contact' as url_contact %}
+      {% url 'content:articles' as url_articles %}
+      <a href="{{ url_services }}" {% if '/services' in request.path %}aria-current="page"{% endif %}
+         class="rounded-xl px-3.5 py-2 text-sm font-bold transition-all duration-200 {% if '/services' in request.path %}bg-brand-50 text-brand-700 shadow-sm ring-1 ring-brand-200/70 dark:bg-brand-950/80 dark:text-brand-300 dark:ring-brand-800/80{% else %}text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/80 dark:hover:text-white{% endif %}">خدمات</a>
+      <a href="{{ url_brands }}" {% if '/brands' in request.path %}aria-current="page"{% endif %}
+         class="rounded-xl px-3.5 py-2 text-sm font-bold transition-all duration-200 {% if '/brands' in request.path %}bg-brand-50 text-brand-700 shadow-sm ring-1 ring-brand-200/70 dark:bg-brand-950/80 dark:text-brand-300 dark:ring-brand-800/80{% else %}text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/80 dark:hover:text-white{% endif %}">برندها</a>
+      <a href="{{ url_articles }}" {% if '/articles' in request.path %}aria-current="page"{% endif %}
+         class="rounded-xl px-3.5 py-2 text-sm font-bold transition-all duration-200 {% if '/articles' in request.path %}bg-brand-50 text-brand-700 shadow-sm ring-1 ring-brand-200/70 dark:bg-brand-950/80 dark:text-brand-300 dark:ring-brand-800/80{% else %}text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/80 dark:hover:text-white{% endif %}">مقالات</a>
+      <a href="{{ url_about }}" {% if '/about' in request.path %}aria-current="page"{% endif %}
+         class="rounded-xl px-3.5 py-2 text-sm font-bold transition-all duration-200 {% if '/about' in request.path %}bg-brand-50 text-brand-700 shadow-sm ring-1 ring-brand-200/70 dark:bg-brand-950/80 dark:text-brand-300 dark:ring-brand-800/80{% else %}text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/80 dark:hover:text-white{% endif %}">درباره ما</a>
+      <a href="{{ url_faq }}" {% if '/faq' in request.path %}aria-current="page"{% endif %}
+         class="rounded-xl px-3.5 py-2 text-sm font-bold transition-all duration-200 {% if '/faq' in request.path %}bg-brand-50 text-brand-700 shadow-sm ring-1 ring-brand-200/70 dark:bg-brand-950/80 dark:text-brand-300 dark:ring-brand-800/80{% else %}text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/80 dark:hover:text-white{% endif %}">سوالات متداول</a>
+      <a href="{{ url_contact }}" {% if '/contact' in request.path %}aria-current="page"{% endif %}
+         class="rounded-xl px-3.5 py-2 text-sm font-bold transition-all duration-200 {% if '/contact' in request.path %}bg-brand-50 text-brand-700 shadow-sm ring-1 ring-brand-200/70 dark:bg-brand-950/80 dark:text-brand-300 dark:ring-brand-800/80{% else %}text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/80 dark:hover:text-white{% endif %}">تماس با ما</a>
+    </nav>
+
+    <!-- CTAs -->
+    <div class="ms-auto flex items-center gap-2 md:ms-0">
+      <button type="button"
+              onclick="toggleTheme(event)"
+              aria-label="فعال کردن حالت تاریک"
+              title="تغییر تم"
+              class="theme-toggle group relative grid h-11 w-11 place-items-center rounded-xl border border-slate-200/90 bg-white text-slate-600 shadow-sm transition hover:border-brand-300 hover:text-brand-600 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:border-slate-700/90 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:text-brand-400 dark:hover:bg-slate-800 active:scale-95 cursor-pointer select-none">
+        <span class="sr-only">تغییر تم</span>
+        <span class="relative block h-5 w-5 overflow-hidden">
+          <span class="theme-icon-sun absolute inset-0 flex items-center justify-center transition-all duration-300 ease-out">
+            {% lucide "sun" "w-5 h-5 text-amber-500" %}
+          </span>
+          <span class="theme-icon-moon absolute inset-0 flex items-center justify-center transition-all duration-300 ease-out">
+            {% lucide "moon" "w-5 h-5 text-brand-600" %}
+          </span>
+        </span>
+      </button>
+      <a href="{% tel_href site_settings.business_phone %}"
+         class="hidden items-center gap-2 rounded-xl border border-slate-200/90 bg-white px-3.5 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:border-brand-300 hover:text-brand-700 hover:shadow-sm dark:border-slate-700/90 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-brand-500 dark:hover:text-brand-300 sm:flex">
+        {% lucide "phone" "w-4 h-4 text-brand-600 dark:text-brand-300" %}
+        <span class="num">{{ site_settings.business_phone|fa_digits }}</span>
+      </a>
+      <a href="{% url 'requests:start' %}"
+         class="hidden items-center gap-1.5 rounded-xl bg-cta-500 px-4 py-2.5 text-sm font-extrabold text-slate-950 shadow-md shadow-cta-500/20 transition hover:bg-cta-600 hover:text-white hover:shadow-lg hover:shadow-cta-500/25 active:scale-[0.97] md:flex">
+        {% lucide "clipboard-pen" "w-4 h-4" %}
+        <span>ثبت درخواست</span>
+      </a>
+      <button id="mobile-menu-btn" onclick="openDrawer()" aria-expanded="false" aria-controls="mobile-drawer" aria-haspopup="dialog"
+              class="grid h-11 w-11 place-items-center rounded-xl border border-slate-200/90 dark:border-slate-700/90 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 transition hover:border-brand-300 active:bg-slate-100 dark:active:bg-slate-800 md:hidden cursor-pointer">
+        {% lucide "menu" "w-5 h-5" %}
+        <span class="sr-only">منو</span>
+      </button>
+    </div>
+  </div>
+
+</header>
+
+<!-- Mobile drawer (slides from the right in RTL) — MUST live outside <header>
+     because the header's backdrop-blur creates a containing block that would
+     confine any fixed-position descendant to the header box. -->
+<div id="drawer-overlay" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-sm transition-opacity duration-300 opacity-0 md:hidden" onclick="closeDrawer()" aria-hidden="true"></div>
+  <aside id="mobile-drawer"
+         class="fixed inset-y-0 right-0 z-50 flex w-[86%] max-w-xs translate-x-full flex-col border-s border-slate-200/70 dark:border-slate-800/80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-2xl transition-transform duration-300 ease-out md:hidden"
+         role="dialog" aria-modal="true" aria-label="منوی موبایل">
+    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 px-5 py-4">
+      <span class="flex items-center gap-2.5">
+        <span class="block h-9 w-9 shrink-0">
+          {% include "partials/logo.html" with logo_class="h-9 w-9" %}
+        </span>
+        <span class="text-base font-extrabold tracking-tight text-slate-900 dark:text-white">
+          <span class="text-brand-600 dark:text-brand-300">{{ site_settings.business_name|first_word }}</span>{% if site_settings.business_name|rest_words %} <span>{{ site_settings.business_name|rest_words }}</span>{% endif %}
+        </span>
+      </span>
+      <button id="mobile-drawer-close" onclick="closeDrawer()" aria-label="بستن منو"
+              class="grid h-10 w-10 place-items-center rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-95 cursor-pointer">
+        {% lucide "x" "w-5 h-5" %}
+      </button>
+    </div>
+    <nav class="flex-1 overflow-y-auto px-3 py-4" aria-label="منوی موبایل">
+      <ul class="grid gap-1.5">
+        <li>
+          <a href="/" {% if request.path == '/' %}aria-current="page"{% endif %}
+             class="flex items-center gap-3 rounded-xl px-3.5 py-3 text-[15px] font-bold transition {% if request.path == '/' %}bg-brand-50 text-brand-700 shadow-sm ring-1 ring-brand-200/70 dark:bg-brand-950/70 dark:text-brand-300 dark:ring-brand-800/70{% else %}text-slate-700 hover:bg-slate-100/80 dark:text-slate-200 dark:hover:bg-slate-800/80{% endif %}">
+            {% lucide "house" "w-5 h-5 shrink-0 text-brand-600 dark:text-brand-400" %}صفحه اصلی
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'services:list' %}" {% if '/services' in request.path %}aria-current="page"{% endif %}
+             class="flex items-center gap-3 rounded-xl px-3.5 py-3 text-[15px] font-bold transition {% if '/services' in request.path %}bg-brand-50 text-brand-700 shadow-sm ring-1 ring-brand-200/70 dark:bg-brand-950/70 dark:text-brand-300 dark:ring-brand-800/70{% else %}text-slate-700 hover:bg-slate-100/80 dark:text-slate-200 dark:hover:bg-slate-800/80{% endif %}">
+            {% lucide "wrench" "w-5 h-5 shrink-0 text-brand-600 dark:text-brand-400" %}خدمات
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'brands:list' %}" {% if '/brands' in request.path %}aria-current="page"{% endif %}
+             class="flex items-center gap-3 rounded-xl px-3.5 py-3 text-[15px] font-bold transition {% if '/brands' in request.path %}bg-brand-50 text-brand-700 shadow-sm ring-1 ring-brand-200/70 dark:bg-brand-950/70 dark:text-brand-300 dark:ring-brand-800/70{% else %}text-slate-700 hover:bg-slate-100/80 dark:text-slate-200 dark:hover:bg-slate-800/80{% endif %}">
+            {% lucide "tags" "w-5 h-5 shrink-0 text-brand-600 dark:text-brand-400" %}برندها
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'content:articles' %}" {% if '/articles' in request.path %}aria-current="page"{% endif %}
+             class="flex items-center gap-3 rounded-xl px-3.5 py-3 text-[15px] font-bold transition {% if '/articles' in request.path %}bg-brand-50 text-brand-700 shadow-sm ring-1 ring-brand-200/70 dark:bg-brand-950/70 dark:text-brand-300 dark:ring-brand-800/70{% else %}text-slate-700 hover:bg-slate-100/80 dark:text-slate-200 dark:hover:bg-slate-800/80{% endif %}">
+            {% lucide "newspaper" "w-5 h-5 shrink-0 text-brand-600 dark:text-brand-400" %}مقالات
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'core:about' %}" {% if '/about' in request.path %}aria-current="page"{% endif %}
+             class="flex items-center gap-3 rounded-xl px-3.5 py-3 text-[15px] font-bold transition {% if '/about' in request.path %}bg-brand-50 text-brand-700 shadow-sm ring-1 ring-brand-200/70 dark:bg-brand-950/70 dark:text-brand-300 dark:ring-brand-800/70{% else %}text-slate-700 hover:bg-slate-100/80 dark:text-slate-200 dark:hover:bg-slate-800/80{% endif %}">
+            {% lucide "info" "w-5 h-5 shrink-0 text-brand-600 dark:text-brand-400" %}درباره ما
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'core:faq' %}" {% if '/faq' in request.path %}aria-current="page"{% endif %}
+             class="flex items-center gap-3 rounded-xl px-3.5 py-3 text-[15px] font-bold transition {% if '/faq' in request.path %}bg-brand-50 text-brand-700 shadow-sm ring-1 ring-brand-200/70 dark:bg-brand-950/70 dark:text-brand-300 dark:ring-brand-800/70{% else %}text-slate-700 hover:bg-slate-100/80 dark:text-slate-200 dark:hover:bg-slate-800/80{% endif %}">
+            {% lucide "circle-help" "w-5 h-5 shrink-0 text-brand-600 dark:text-brand-400" %}سوالات متداول
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'core:contact' %}" {% if '/contact' in request.path %}aria-current="page"{% endif %}
+             class="flex items-center gap-3 rounded-xl px-3.5 py-3 text-[15px] font-bold transition {% if '/contact' in request.path %}bg-brand-50 text-brand-700 shadow-sm ring-1 ring-brand-200/70 dark:bg-brand-950/70 dark:text-brand-300 dark:ring-brand-800/70{% else %}text-slate-700 hover:bg-slate-100/80 dark:text-slate-200 dark:hover:bg-slate-800/80{% endif %}">
+            {% lucide "map-pin" "w-5 h-5 shrink-0 text-brand-600 dark:text-brand-400" %}تماس با ما
+          </a>
+        </li>
+        <li class="mt-2 border-t border-slate-100 dark:border-slate-800 pt-2">
+          <button type="button" onclick="toggleTheme(event)"
+                  class="theme-toggle flex w-full items-center justify-between rounded-xl px-3.5 py-3 text-[15px] font-bold text-slate-700 transition hover:bg-slate-100/80 dark:text-slate-200 dark:hover:bg-slate-800/80 cursor-pointer select-none">
+            <span class="flex items-center gap-3">
+              <span class="relative block h-5 w-5 overflow-hidden">
+                <span class="theme-icon-sun absolute inset-0 flex items-center justify-center transition-all duration-300 ease-out">
+                  {% lucide "sun" "w-5 h-5 text-amber-500" %}
+                </span>
+                <span class="theme-icon-moon absolute inset-0 flex items-center justify-center transition-all duration-300 ease-out">
+                  {% lucide "moon" "w-5 h-5 text-brand-600" %}
+                </span>
+              </span>
+              <span>حالت شب / روز</span>
+            </span>
+            <span class="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+              <span class="hidden dark:inline">تاریک</span>
+              <span class="dark:hidden">روشن</span>
+            </span>
+          </button>
+        </li>
+      </ul>
+    </nav>
+    <div class="border-t border-slate-100 dark:border-slate-800 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4">
+      <a href="{% url 'requests:start' %}" onclick="closeDrawer()"
+         class="flex items-center justify-center gap-1.5 rounded-xl bg-cta-500 py-3 text-sm font-extrabold text-slate-950 shadow-md shadow-cta-500/20 transition hover:bg-cta-600 hover:text-white active:scale-[0.97]">
+        {% lucide "clipboard-pen" "w-4 h-4" %}
+        ثبت درخواست
+      </a>
+      <a href="{% tel_href site_settings.business_phone %}"
+         class="mt-2 flex items-center justify-center gap-2 rounded-xl bg-brand-600 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-brand-700 active:scale-[0.97]">
+        {% lucide "phone" "w-4 h-4" %}
+        <span class="num">{{ site_settings.business_phone|fa_digits }}</span>
+      </a>
+    </div>
+  </aside>
+
+<script>
+  (function () {
+    "use strict";
+    var overlay = document.getElementById("drawer-overlay");
+    var drawer = document.getElementById("mobile-drawer");
+    var btn = document.getElementById("mobile-menu-btn");
+    var lastFocus = null;
+
+    function openDrawer() {
+      if (!drawer || drawer.classList.contains("translate-x-0")) return;
+      lastFocus = document.activeElement;
+      overlay.classList.remove("hidden");
+      requestAnimationFrame(function () {
+        overlay.classList.remove("opacity-0");
+        drawer.classList.remove("translate-x-full");
+        drawer.classList.add("translate-x-0");
+      });
+      document.documentElement.style.overflow = "hidden"; // scroll lock
+      btn && btn.setAttribute("aria-expanded", "true");
+      var close = document.getElementById("mobile-drawer-close");
+      close && close.focus();
+      document.addEventListener("keydown", onKeydown);
+    }
+
+    function closeDrawer() {
+      if (!drawer || drawer.classList.contains("translate-x-full")) return;
+      overlay.classList.add("opacity-0");
+      drawer.classList.remove("translate-x-0");
+      drawer.classList.add("translate-x-full");
+      document.documentElement.style.overflow = "";
+      btn && btn.setAttribute("aria-expanded", "false");
+      document.removeEventListener("keydown", onKeydown);
+      window.setTimeout(function () {
+        if (drawer.classList.contains("translate-x-full")) overlay.classList.add("hidden");
+      }, 300);
+      lastFocus && lastFocus.focus && lastFocus.focus();
+    }
+
+    function onKeydown(e) {
+      if (e.key === "Escape") return closeDrawer();
+      if (e.key !== "Tab") return;
+      var focusables = drawer.querySelectorAll('a[href], button:not([disabled])');
+      if (!focusables.length) return;
+      var first = focusables[0], last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+
+    window.openDrawer = openDrawer;
+    window.closeDrawer = closeDrawer;
+  })();
+</script>

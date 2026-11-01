@@ -1,0 +1,40 @@
+/* Visual icon picker used in the admin Service form. */
+.b-icon-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.35rem 0;
+}
+.b-icon-opt {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 2px solid #cbd5e1;
+  border-radius: 12px;
+  background: #fff;
+  color: #334155;
+  cursor: pointer;
+  transition: border-color .15s, background .15s, color .15s;
+}
+.b-icon-opt:hover { border-color: #1d4ed8; color: #1d4ed8; }
+.b-icon-opt input { position: absolute; opacity: 0; pointer-events: none; }
+.b-icon-opt:has(input:checked) {
+  border-color: #1d4ed8;
+  background: #1d4ed8;
+  color: #fff;
+}
+.b-icon-opt svg { width: 22px; height: 22px; }
+
+/* Dark admin theme compatibility */
+html[data-admin-theme="dark"] .b-icon-opt {
+  background: #101a2e;
+  border-color: #334155;
+  color: #cbd5e1;
+}
+html[data-admin-theme="dark"] .b-icon-opt:hover { border-color: #60a5fa; color: #60a5fa; }
+html[data-admin-theme="dark"] .b-icon-opt:has(input:checked) {
+  background: #1d4ed8;
+  border-color: #60a5fa;
+  color: #fff;
+}

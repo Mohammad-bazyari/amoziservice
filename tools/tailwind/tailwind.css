@@ -1,0 +1,599 @@
+/**
+ * Tailwind CSS v4 entry for استا سرویس.
+ * Design tokens live in @theme; components use utility classes directly.
+ */
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("../fonts/Vazirmatn-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("../fonts/Vazirmatn-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("../fonts/Vazirmatn-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("../fonts/Vazirmatn-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@import "tailwindcss";
+
+/* Dark mode: class/data-attribute driven so the user's choice persists.
+   The toggle sets data-theme="dark" on <html> early (anti-FOUC inline
+   script in base.html); Tailwind's dark: variants key off [data-theme]. */
+@custom-variant dark (&:where([data-theme="dark"] *, [data-theme="dark"]));
+
+/* Explicit sources: the templates folder (and any inline class names in Python) */
+@source "../../templates";
+@source "../../apps";
+/* اعلان‌ها: کلاس‌های کارت Toast در static/js/wizard-toast.js تولید می‌شوند. */
+@source "../../static/js";
+
+@theme {
+  --font-sans: "Vazirmatn", Vazirmatn, Tahoma, ui-sans-serif, system-ui, sans-serif;
+
+  /* Brand palette: professional, trustworthy, service-marketplace feel */
+  --color-brand-50: #eef7ff;
+  --color-brand-100: #d9ecff;
+  --color-brand-200: #bcdcff;
+  --color-brand-300: #8ec5ff;
+  --color-brand-400: #59a4ff;
+  --color-brand-500: #3382fc;
+  --color-brand-600: #1d63f1;
+  --color-brand-700: #164ede;
+  --color-brand-800: #1841b4;
+  --color-brand-900: #1a3b8d;
+  --color-brand-950: #152557;
+
+  /* Accent for CTAs — warm, high-contrast */
+  --color-cta-400: #ffb020;
+  --color-cta-500: #f59e0b;
+  --color-cta-600: #d97706;
+  --color-cta-700: #b45309;
+
+  --radius-card: 1rem;
+  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.06), 0 8px 24px -12px rgb(15 23 42 / 0.12);
+
+  --animate-fade-up: fade-up 0.5s ease-out both;
+  --animate-fade-in: fade-in 0.4s ease-out both;
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}
+
+/* RTL-friendly global tweaks */
+@layer base {
+  html { scroll-behavior: smooth; }
+  body { text-rendering: optimizeLegibility; }
+  /* لایه‌ی محیطی صفحه: دانه‌ی ریز + شستشوی گرادیانی برند — تم-آگاه از طریق
+     --noise-image و --page-wash؛ هیچ رنگ سفید/سیاه هاردکد نیست. شستشو فقط در
+     ۴۰rem بالای صفحه نشسته است و پایین صفحه پاک و بی‌تکسچر می‌ماند. */
+  body {
+    background-image: var(--noise-image), var(--page-wash);
+    background-size: 160px 160px, 100% 40rem;
+    background-repeat: repeat, no-repeat;
+    background-attachment: scroll, scroll;
+  }
+  /* Respect users who opt out of non-essential motion (Web Interface Guidelines) */
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+  input, textarea, select, button { font-family: inherit; }
+  /* Visible, on-brand keyboard focus everywhere */
+  :focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+    border-radius: 0.5rem;
+  }
+  /* Persian digits where we render latin ones manually stay LTR-safe */
+  .num { direction: ltr; unicode-bidi: embed; }
+}
+
+/* Dark-mode custom utilities (theme tokens don't auto-flip these) */
+@utility bg-dots-white {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+@utility bg-dots-dark {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* ---- Background & texture system ------------------------------------
+   سیستم بافت و عمق بصری: همه‌ی مقدارها با متغیر CSS تعریف شده‌اند تا
+   تعویض تم ([data-theme="dark"]) همه‌جای زنجیره را هم‌زمان به‌روز کند.
+   دارایی‌ها گرادیان/SVG درون‌خطی‌اند — بدون درخواست شبکه و بدون JS.        */
+:root {
+  color-scheme: light dark;
+
+  /* دانه‌ی ریز (grain): SVG feTurbulence، با آلفای خیلی کم بیک‌شده */
+  --noise-image-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.035 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --noise-image-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.65 0 0 0 0 0.72 0 0 0 0 0.85 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --noise-image: var(--noise-image-light);
+
+  /* جوهر شبکه/نقطه برای بافت‌های هندسی */
+  --dot-ink: rgb(2 32 71 / 0.05);
+  --grid-ink: rgb(15 23 42 / 0.05);
+  --glow-ink: rgb(51 130 252 / 0.07);
+
+  /* درخشش سطحی (sheen) لبه‌ی بالای کارت‌ها */
+  --sheen: linear-gradient(rgb(255 255 255 / 0.7), rgb(255 255 255 / 0) 42%);
+
+  /* شستشوی محیطی پس‌زمینه‌ی صفحه (روی slate پایه) */
+  --page-wash:
+    radial-gradient(1100px 480px at 88% -80px, rgb(214 234 255 / 0.5), transparent 65%),
+    radial-gradient(900px 420px at -10% 12%, rgb(238 247 255 / 0.85), transparent 70%);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --noise-image: var(--noise-image-dark);
+  --dot-ink: rgb(148 163 184 / 0.09);
+  --grid-ink: rgb(148 163 184 / 0.06);
+  --glow-ink: rgb(51 130 252 / 0.13);
+  --sheen: linear-gradient(rgb(255 255 255 / 0.04), rgb(255 255 255 / 0) 42%);
+  --page-wash:
+    radial-gradient(1000px 460px at 88% -80px, rgb(29 99 241 / 0.15), transparent 65%),
+    radial-gradient(760px 380px at -10% 14%, rgb(241 158 3 / 0.05), transparent 70%);
+}
+
+/* دانه‌ی نوری خیلی ریز به‌صورت پوشش pointer-events-none (برای سکشن‌هایی که
+   خودشان گرادیان پس‌زمینه دارند و background-imageشان جای دیگری است). */
+@utility texture-grain {
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: var(--noise-image);
+    background-size: 160px 160px;
+  }
+}
+
+/* نقاط ریز تم-آگاه (نسخه‌ی متغیرِ bg-dots-white/bg-dots-dark) */
+@utility bg-dot-grid {
+  background-image: radial-gradient(var(--dot-ink) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* شبکه‌ی خطوط خیلی کم‌رنگ — برای نوارهای روشن/تاریک */
+@utility bg-line-grid {
+  background-image:
+    linear-gradient(to left, var(--grid-ink) 1px, transparent 1px),
+    linear-gradient(to top, var(--grid-ink) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+/* شستشوی محیطی برند: هاله‌ی خیلی ملایم پشت محتوا */
+@utility bg-ambient-glow {
+  background: radial-gradient(36rem 18rem at 50% 0%, var(--glow-ink), transparent 70%);
+}
+
+/* درخشش لبه‌ی بالای کارت‌ها — بدون رنگ سفید/سیاه هاردکد */
+@utility surface-sheen {
+  background-image: var(--sheen);
+}
+
+/* شیشه نیمه‌شفاف تمیز (Glassmorphism) */
+@utility surface-glass {
+  @apply backdrop-blur-md bg-white/75 dark:bg-slate-900/75 border border-slate-200/80 dark:border-slate-800/80 shadow-card;
+}
+
+/* پالس زنده وضعیت فعال (سبز/کهربایی/برند) */
+@utility badge-pulse-dot {
+  position: relative;
+  display: inline-flex;
+  height: 0.5rem;
+  width: 0.5rem;
+  border-radius: 9999px;
+  background-color: currentColor;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 9999px;
+    background-color: currentColor;
+    opacity: 0.75;
+    animation: badge-pulse-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+}
+
+@keyframes badge-pulse-ping {
+  75%, 100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+/* Thin scrollbar for horizontal chip rows on mobile */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ---- Request wizard form styling ------------------------------------ */
+@layer components {
+  /* Radio/select base controls (server-rendered, then progressively enhanced) */
+  input[type="radio"], select.wizard-select {
+    @apply h-5 w-5 shrink-0 cursor-pointer accent-brand-600;
+  }
+  select.wizard-select {
+    @apply h-12 w-full appearance-none rounded-xl border border-slate-300 bg-white px-3.5 text-sm font-bold text-slate-900 shadow-card transition focus:border-brand-500 focus:outline-none;
+  }
+  [data-theme="dark"] select.wizard-select {
+    @apply border-slate-600 bg-slate-800 text-slate-100;
+  }
+  /* Text inputs & textareas inside the wizard: same look as wizard-select */
+  input.wizard-input, textarea.wizard-input {
+    @apply w-full rounded-xl border border-slate-300 bg-white px-3.5 py-3 text-sm font-bold text-slate-900 shadow-card transition placeholder:font-medium placeholder:text-slate-400 focus:border-brand-500 focus:outline-none;
+  }
+  textarea.wizard-input {
+    @apply leading-7;
+  }
+  [data-theme="dark"] input.wizard-input,    [data-theme="dark"] textarea.wizard-input {
+    @apply border-slate-600 bg-slate-800 text-slate-100 placeholder:text-slate-500;
+  }
+  /* iOS Safari zooms the page on focus when a control's font is under 16px */
+
+  @supports (-webkit-touch-callout: none) {
+    input.wizard-input, textarea.wizard-input, select.wizard-select { font-size: 16px; }
+  }
+  /* حالت خطا و موفقیت تعاملی (بر اساس راهنمای modern-web-guidance):
+     aria-invalid از سرور یا اسکریپت؛ :user-invalid بومی پس از پایان تعامل کاربر. */
+  input.wizard-input[aria-invalid="true"],
+  textarea.wizard-input[aria-invalid="true"],
+  select.wizard-select[aria-invalid="true"],
+  input.wizard-input:user-invalid,
+  textarea.wizard-input:user-invalid,
+  select.wizard-select:user-invalid {
+    @apply border-red-500 bg-red-50/25 focus:border-red-500 focus:ring-1 focus:ring-red-500;
+  }
+  [data-theme="dark"] input.wizard-input[aria-invalid="true"],
+  [data-theme="dark"] textarea.wizard-input[aria-invalid="true"],
+  [data-theme="dark"] select.wizard-select[aria-invalid="true"],
+  [data-theme="dark"] input.wizard-input:user-invalid,
+  [data-theme="dark"] textarea.wizard-input:user-invalid,
+  [data-theme="dark"] select.wizard-select:user-invalid {
+    @apply border-red-500/70 bg-red-950/20 focus:border-red-400 focus:ring-1 focus:ring-red-400;
+  }
+  input.wizard-input:user-valid:not(:placeholder-shown),
+  textarea.wizard-input:user-valid:not(:placeholder-shown) {
+    @apply border-emerald-500/70 focus:border-emerald-600;
+  }
+  [data-theme="dark"] input.wizard-input:user-valid:not(:placeholder-shown),
+  [data-theme="dark"] textarea.wizard-input:user-valid:not(:placeholder-shown) {
+    @apply border-emerald-500/60 focus:border-emerald-400;
+  }
+  [data-required][aria-invalid="true"] label {
+    @apply border-red-400;
+  }
+  /* Problem radio rows: whole row clickable, selected row highlighted */
+  .wizard-radios label {
+    @apply flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 transition hover:border-brand-300 hover:bg-brand-50;
+  }
+  .wizard-radios label:has(input:checked) {
+    @apply border-brand-500 bg-brand-50 text-brand-800 ring-1 ring-brand-500;
+  }
+  [data-theme="dark"] .wizard-radios label {
+    @apply border-slate-700 bg-slate-900 text-slate-200;
+  }
+  [data-theme="dark"] .wizard-radios label:hover {
+    @apply border-brand-500 bg-slate-800;
+  }
+  [data-theme="dark"] .wizard-radios label:has(input:checked) {
+    @apply bg-brand-950 text-brand-100 ring-1 ring-brand-500;
+  }
+}
+
+/* ---- Infinite brand logo carousel ----------------------------------- */
+@layer components {
+  .brand-marquee {
+    @apply relative overflow-hidden;
+  }
+
+  /* سایه ملایم و چشم‌نواز دو طرف اسلایدر به جای هاله سفید تند */
+  .brand-marquee::before,
+  .brand-marquee::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 4rem;
+    pointer-events: none;
+    z-index: 10;
+    transition: opacity 0.2s ease-in-out;
+  }
+  .brand-marquee::before {
+    right: 0;
+    background: linear-gradient(to left, rgba(15, 23, 42, 0.08), transparent);
+  }
+  .brand-marquee::after {
+    left: 0;
+    background: linear-gradient(to right, rgba(15, 23, 42, 0.08), transparent);
+  }
+  [data-theme="dark"] .brand-marquee::before {
+    background: linear-gradient(to left, rgba(2, 6, 23, 0.65), transparent);
+  }
+  [data-theme="dark"] .brand-marquee::after {
+    background: linear-gradient(to right, rgba(2, 6, 23, 0.65), transparent);
+  }
+
+  /* Autoslider variant: track plays automatically */
+  .brand-marquee--autoslider .brand-marquee__track {
+    animation: brand-marquee-scroll 30s linear infinite;
+  }
+
+  /* Pause on hover or focus-within for accessibility */
+  .brand-marquee:hover .brand-marquee__track,
+  .brand-marquee:focus-within .brand-marquee__track,
+  .brand-marquee--paused .brand-marquee__track {
+    animation-play-state: paused;
+  }
+
+  .brand-marquee__track {
+    display: flex;
+    width: max-content;
+  }
+
+  .brand-marquee__group {
+    @apply flex shrink-0 items-center;
+  }
+
+  .brand-marquee__item {
+    @apply mx-3 shrink-0 sm:mx-4;
+  }
+
+  /* Each card is a fixed-size chip: the logo on top, the brand name below it.
+     The chip background deliberately does NOT follow the site theme — brand
+     marks are drawn for one background (Baxi is dark blue, Iran Radiator is
+     white-on-transparent) and keep their contrast only if the chip stays the
+     same in light and dark mode. Brands whose mark is light get
+     `brand-marquee__logo--on-dark` (see Brand.logo_theme in the admin). */
+  .brand-marquee__logo {
+    @apply flex h-20 w-36 flex-col items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-3 text-slate-700 opacity-80 shadow-card transition duration-300 hover:-translate-y-0.5 hover:border-brand-300 hover:opacity-100 hover:shadow-lg sm:h-24 sm:w-44;
+  }
+
+  .brand-marquee__logo img {
+    @apply max-h-9 w-auto max-w-full object-contain sm:max-h-11;
+  }
+
+  .brand-marquee__name {
+    @apply text-xs font-bold leading-5 text-slate-700;
+  }
+
+  .brand-marquee__logo--on-dark {
+    @apply border-slate-700 bg-slate-900 text-slate-100 hover:border-brand-500;
+  }
+
+  .brand-marquee__logo--on-dark .brand-marquee__name {
+    @apply text-slate-200;
+  }
+
+  /* Reduced motion: no drifting strip at all; the prev/next buttons still work. */
+  @media (prefers-reduced-motion: reduce) {
+    .brand-marquee--autoslider .brand-marquee__track {
+      animation: none;
+    }
+  }
+
+  /* RTL: reading order is right-to-left, so run the loop from 0% to +50%
+     (track slides leftward = content flows right to left). The track holds
+     two identical groups, so looping at 50% is seamless. For an LTR layout
+     flip the to-value to 50% (direction stays seamless either way). */
+  @keyframes brand-marquee-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(50%); }
+  }
+
+  /* Manual navigation: pause animation so buttons can control it.
+     JS toggles a class on the parent section to pause the CSS animation
+     while the user is scrubbing via prev/next. */
+  .brand-marquee--paused .brand-marquee__track {
+    animation-play-state: paused;
+  }
+}
+
+/* ---- Marquee navigation buttons ------------------------------------- */
+@layer components {
+  .marquee-nav {
+    @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50 hover:ring-brand-300 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:bg-slate-800 dark:ring-slate-700 dark:hover:bg-slate-700 dark:hover:ring-brand-500/50 cursor-pointer select-none;
+  }
+
+  .marquee-nav svg {
+    @apply shrink-0 text-slate-600 transition-colors dark:text-slate-300;
+  }
+
+  .marquee-nav:hover svg {
+    @apply text-brand-600 dark:text-brand-400;
+  }
+}
+
+/* ---- Theme Toggle Button & Sun/Moon Morph Animation ----------------- */
+@layer components {
+  .theme-toggle .theme-icon-sun {
+    opacity: 0;
+    transform: rotate(90deg) scale(0.5);
+    pointer-events: none;
+  }
+  .theme-toggle .theme-icon-moon {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+    pointer-events: auto;
+  }
+
+  [data-theme="dark"] .theme-toggle .theme-icon-sun {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+    pointer-events: auto;
+  }
+  [data-theme="dark"] .theme-toggle .theme-icon-moon {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.5);
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .theme-toggle .theme-icon-sun,
+    .theme-toggle .theme-icon-moon {
+      transition: none !important;
+    }
+  }
+}
+
+/* ---- View Transitions: Circular Reveal for Theme Toggle ------------- */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none !important;
+  mix-blend-mode: normal !important;
+}
+
+::view-transition-image-pair(root) {
+  isolation: isolate !important;
+}
+
+::view-transition-old(root) {
+  z-index: 1 !important;
+}
+
+::view-transition-new(root) {
+  z-index: 2147483646 !important;
+}
+
+html.theme-view-transition::view-transition-old(root),
+html.theme-view-transition::view-transition-new(root) {
+  animation: none !important;
+  mix-blend-mode: normal !important;
+}
+
+html.theme-view-transition::view-transition-old(root) {
+  z-index: 1 !important;
+}
+
+html.theme-view-transition::view-transition-new(root) {
+  z-index: 2147483646 !important;
+}
+
+/* Fallback circular overlay for browsers without View Transitions */
+.theme-circle-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  pointer-events: none !important;
+  z-index: 2147483647 !important;
+  will-change: clip-path;
+}
+
+/* Fallback smooth transition for browsers without View Transitions */
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease, fill 0.4s ease, stroke 0.4s ease, box-shadow 0.4s ease !important;
+  transition-delay: 0s !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+  html.theme-transitioning,
+  html.theme-transitioning *,
+  html.theme-transitioning *::before,
+  html.theme-transitioning *::after {
+    transition: none !important;
+  }
+}
+
+/* ---- FAQ accordion -------------------------------------------------- */
+/* Height animates with grid-template-rows: 0fr → 1fr, so nothing needs to be
+   measured in JS and the panel keeps working when its content height changes.
+   State lives on data-state attributes that static/js/accordion.js toggles. */
+@layer components {
+  .faq-accordion {
+    @apply flex flex-col gap-3;
+  }
+
+  .faq-accordion__item {
+    @apply overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-colors duration-200 dark:border-slate-700 dark:bg-slate-900;
+  }
+
+  .faq-accordion__item[data-state="open"] {
+    @apply border-brand-200 shadow-card dark:border-brand-800;
+  }
+
+  .faq-accordion__trigger {
+    @apply flex w-full cursor-pointer items-center gap-3 bg-transparent px-5 py-4 text-start text-base font-bold text-slate-800 transition-colors duration-200 hover:bg-slate-50 dark:text-slate-100 dark:hover:bg-slate-800/60;
+  }
+
+  /* The card clips its overflow, so the focus ring is drawn inside it. */
+  .faq-accordion__trigger:focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: -2px;
+    border-radius: 0;
+  }
+
+  /* نشانگر آیکن: بسته «+» خاکستری؛ باز با چرخش ۴۵ درجه به «×» قرمز
+     مبدل می‌شود (چرخش ۴۵ درجه دقیقاً آیکن plus را ضربدر می‌کند). */
+  .faq-accordion__chevron {
+    @apply flex size-5 shrink-0 items-center justify-center text-slate-400 transition-[transform,color] duration-200 ease-out dark:text-slate-500;
+  }
+
+  .faq-accordion__item[data-state="open"] .faq-accordion__chevron {
+    @apply rotate-45 text-red-600 dark:text-red-400;
+  }
+
+  /* روی هاور کل پنل: بسته کمی تیره‌تر؛ باز قرمزِ پررنگ‌تر. */
+  .faq-accordion__item:hover .faq-accordion__chevron {
+    @apply text-slate-600 dark:text-slate-300;
+  }
+  .faq-accordion__item[data-state="open"]:hover .faq-accordion__chevron {
+    @apply text-red-700 dark:text-red-300;
+  }
+
+  .faq-accordion__panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 200ms ease-out;
+  }
+
+  .faq-accordion__panel[data-state="open"] {
+    grid-template-rows: 1fr;
+  }
+
+  .faq-accordion__panel-inner {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .faq-accordion__answer {
+    @apply px-5 pb-5 pt-1 text-sm leading-8 text-slate-600 dark:text-slate-300;
+  }
+}

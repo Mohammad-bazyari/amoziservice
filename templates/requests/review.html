@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load fa %}
+{% block title %}بازبینی درخواست | {{ site_settings.business_name }}{% endblock %}
+{% block meta_description %}بازبینی اطلاعات درخواست سرویس پیش از ثبت نهایی.{% endblock %}
+
+{% block content %}
+<section class="mx-auto max-w-3xl px-4 py-10 md:py-14">
+  <h1 class="text-2xl font-extrabold text-slate-900 dark:text-white md:text-3xl">بازبینی درخواست</h1>
+  <p class="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">اطلاعات زیر را بررسی کنید؛ در صورت صحت، درخواست را ثبت کنید.</p>
+
+  <form method="post" action="{% url 'requests:submit' %}" x-data="{ submitting: false }"
+        @submit="submitting = true" class="mt-6">
+    {% csrf_token %}
+
+    <div class="surface-sheen rounded-3xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 shadow-card md:p-8">
+      <dl class="grid gap-x-8 gap-y-5 sm:grid-cols-2">
+        <div class="sm:col-span-2">
+          <dt class="text-xs font-bold text-slate-500 dark:text-slate-400">خدمت</dt>
+          <dd class="mt-1 font-bold text-slate-900 dark:text-white">{{ review.service.name }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-bold text-slate-500 dark:text-slate-400">برند</dt>
+          <dd class="mt-1 font-bold text-slate-900 dark:text-white">{{ review.brand_label }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-bold text-slate-500 dark:text-slate-400">مشکل</dt>
+          <dd class="mt-1 font-bold text-slate-900 dark:text-white">{{ review.problem_label }}</dd>
+        </div>
+        {% if review.description %}
+        <div class="sm:col-span-2">
+          <dt class="text-xs font-bold text-slate-500 dark:text-slate-400">توضیحات</dt>
+          <dd class="mt-1 whitespace-pre-line leading-7 text-slate-700 dark:text-slate-200">{{ review.description }}</dd>
+        </div>
+        {% endif %}
+
+        <div class="border-t border-slate-100 dark:border-slate-800 pt-4 sm:col-span-2">
+          <h2 class="text-sm font-bold text-slate-900 dark:text-white">اطلاعات مشتری</h2>
+        </div>
+        <div>
+          <dt class="text-xs font-bold text-slate-500 dark:text-slate-400">نام و نام خانوادگی</dt>
+          <dd class="mt-1 font-bold text-slate-900 dark:text-white">{{ review.customer_name }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-bold text-slate-500 dark:text-slate-400">شماره موبایل</dt>
+          <dd class="num mt-1 font-bold text-slate-900 dark:text-white">{{ review.customer_phone|fa_digits }}</dd>
+        </div>
+
+        <div class="border-t border-slate-100 dark:border-slate-800 pt-4 sm:col-span-2">
+          <h2 class="text-sm font-bold text-slate-900 dark:text-white">آدرس</h2>
+        </div>
+        <div class="sm:col-span-2">
+          <dd class="leading-7 text-slate-700 dark:text-slate-200">
+            {{ review.province }}، {{ review.city }}{% if review.district %}، {{ review.district }}{% endif %}
+            — {{ review.address }}
+            {% if review.plaque %}، پلاک <span class="num">{{ review.plaque|fa_digits }}</span>{% endif %}
+            {% if review.unit %}، واحد <span class="num">{{ review.unit|fa_digits }}</span>{% endif %}
+          </dd>
+          {% if review.postal_code %}<dd class="mt-1 text-sm text-slate-500 dark:text-slate-400">کد پستی: <span class="num">{{ review.postal_code|fa_digits }}</span></dd>{% endif %}
+          {% if review.address_notes %}<dd class="mt-1 whitespace-pre-line text-sm text-slate-500 dark:text-slate-400">{{ review.address_notes }}</dd>{% endif %}
+        </div>
+
+        {% if review.image_names %}
+        <div class="border-t border-slate-100 dark:border-slate-800 pt-4 sm:col-span-2">
+          <dt class="text-xs font-bold text-slate-500 dark:text-slate-400">تصاویر پیوست</dt>
+          <dd class="num mt-1 text-sm text-slate-700 dark:text-slate-200">{{ review.image_names|length|fa_digits }} تصویر انتخاب شده است.</dd>
+        </div>
+        {% endif %}
+      </dl>
+    </div>
+
+    <div class="mt-6 flex items-center justify-between gap-3">
+      <a href="{% url 'requests:step' 'service' %}"
+         class="flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-300 transition hover:border-slate-300 dark:border-slate-600 hover:text-slate-800 dark:text-slate-100">
+        {% lucide "arrow-right" "w-4 h-4" %} ویرایش اطلاعات
+      </a>
+
+      <button type="submit"
+              :disabled="submitting"
+              class="flex items-center gap-2 rounded-xl bg-cta-500 px-7 py-3.5 text-base font-extrabold text-slate-900 shadow-card transition hover:bg-cta-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-60">
+        <span x-show="!submitting" class="flex items-center gap-2">
+          {% lucide "check" "w-5 h-5" %} ثبت درخواست
+        </span>
+        <span x-show="submitting" x-cloak class="flex items-center gap-2">
+          {% lucide "loader-2" "w-5 h-5 animate-spin" %} در حال ثبت...
+        </span>
+      </button>
+    </div>
+  </form>
+</section>
+{% endblock %}

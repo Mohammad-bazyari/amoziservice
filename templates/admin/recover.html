@@ -1,0 +1,219 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}بازیابی رمز عبور مدیریت | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+    .recover-wrap { max-width: 440px; margin: 2.5rem auto; padding: 0 1rem; }
+    .recover-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: .9rem;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, .08);
+      padding: 1.5rem 1.5rem 1.75rem;
+      font-size: .92rem;
+    }
+    .recover-card h1 { font-size: 1.15rem; font-weight: 800; color: #1e3a8a; margin: 0 0 .4rem; }
+    .recover-card > p.lead { color: #64748b; margin: 0 0 1rem; line-height: 1.8; }
+    .recover-card .step { display: none; }
+    .recover-card .step.active { display: block; }
+    .recover-card label { display: block; font-weight: 700; margin: .6rem 0 .3rem; }
+    .recover-card input {
+      width: 100%; box-sizing: border-box;
+      padding: .55rem .7rem; border: 1px solid #cbd5e1; border-radius: .55rem;
+      font-family: inherit; font-size: .95rem;
+    }
+    .recover-card input:focus { outline: 2px solid #1d4ed8; outline-offset: 1px; border-color: #1d4ed8; }
+    .recover-card .r-btn {
+      margin-top: .85rem; width: 100%;
+      background: #1d4ed8; color: #fff; border: none; border-radius: .55rem;
+      padding: .6rem .75rem; font-weight: 800; cursor: pointer; font-family: inherit;
+    }
+    .recover-card .r-btn:disabled { opacity: .55; cursor: wait; }
+    .recover-card .r-btn.secondary { background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0; margin-top: .45rem; }
+    .recover-card .r-error {
+      display: none;
+      background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca;
+      border-radius: .55rem; padding: .55rem .7rem; margin-top: .75rem; font-size: .85rem;
+    }
+    .recover-card .r-error.show { display: block; }
+    .recover-card .r-hint { font-size: .8rem; color: #64748b; margin-top: .55rem; line-height: 1.7; }
+    .recover-back { text-align: center; margin-top: 1.1rem; }
+    .recover-back a { color: #1d4ed8; text-decoration: none; font-weight: 700; font-size: .88rem; }
+    .recover-back a:hover { text-decoration: underline; }
+  </style>
+{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+<div class="recover-wrap" dir="rtl">
+  <div class="recover-card">
+    <h1>بازیابی رمز عبور</h1>
+    <p class="lead">با شماره موبایل ثبت‌شده روی حساب شما، یک کد بازیابی پیامک می‌شود — یا می‌توانید با پاسخ سوال امنیتی بازیابی کنید.</p>
+
+    <!-- Step 1: username -->
+    <div class="step active" data-step="1">
+      <form id="recover-form-start">
+        <label for="rec-username">نام کاربری</label>
+        <input id="rec-username" name="username" autocomplete="username" required>
+        <button type="submit" class="r-btn">ارسال کد بازیابی</button>
+        <button type="button" class="r-btn secondary" id="rec-ask-question">بازیابی با سوال امنیتی</button>
+        <p class="r-hint">کد به شماره موبایل ثبت‌شده روی حساب شما ارسال می‌شود.</p>
+      </form>
+    </div>
+
+    <!-- Step 1q: security question -->
+    <div class="step" data-step="q">
+      <form id="recover-form-question">
+        <label for="rec-answer"><span id="rec-question"></span></label>
+        <input id="rec-answer" name="answer" autocomplete="off" required>
+        <button type="submit" class="r-btn">پاسخ دادن</button>
+        <button type="button" class="r-btn secondary" data-back="1">بازگشت</button>
+        <p class="r-hint">برای بازیابی، همان پاسخ دقیقی را بنویسید که موقع تنظیم سوال وارد شده است.</p>
+      </form>
+    </div>
+
+    <!-- Step 2: code -->
+    <div class="step" data-step="2">
+      <form id="recover-form-verify">
+        <label for="rec-code">کد ۶ رقمی پیامک‌شده به <span id="rec-phone"></span></label>
+        <input id="rec-code" name="code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" required>
+        <button type="submit" class="r-btn">تأیید کد</button>
+        <button type="button" class="r-btn secondary" id="rec-resend">ارسال مجدد کد</button>
+        <button type="button" class="r-btn secondary" data-back="1">بازگشت</button>
+      </form>
+    </div>
+
+    <!-- Step 3: new password -->
+    <div class="step" data-step="3">
+      <form id="recover-form-reset">
+        <label for="rec-p1">رمز عبور جدید</label>
+        <input id="rec-p1" name="new_password1" type="password" autocomplete="new-password" required>
+        <label for="rec-p2">تکرار رمز عبور جدید</label>
+        <input id="rec-p2" name="new_password2" type="password" autocomplete="new-password" required>
+        <button type="submit" class="r-btn">ثبت رمز جدید</button>
+        <p class="r-hint">رمز جدید نباید مشابه نام کاربری یا ایمیل باشد و حداقل ۸ کاراکتر است.</p>
+      </form>
+    </div>
+
+    <div class="r-error" id="rec-error" role="alert"></div>
+  </div>
+
+  <p class="recover-back">
+    <a href="{% url 'admin:login' %}">← بازگشت به صفحه ورود</a>
+  </p>
+</div>
+
+<script>
+  (function () {
+    var card = document.querySelector(".recover-card");
+    if (!card) return;
+    var steps = card.querySelectorAll(".step");
+    var errorBox = document.getElementById("rec-error");
+
+    function showStep(n) {
+      steps.forEach(function (el) {
+        el.classList.toggle("active", el.dataset.step === String(n));
+      });
+      errorBox.classList.remove("show");
+    }
+    function showError(msg) {
+      if (!msg) { errorBox.classList.remove("show"); return; }
+      errorBox.textContent = msg;
+      errorBox.classList.add("show");
+    }
+    function busy(form, on) {
+      var btn = form.querySelector(".r-btn:not(.secondary)");
+      if (btn) btn.disabled = on;
+    }
+    function post(url, data, form, onDone) {
+      busy(form, true);
+      fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-CSRFToken": (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || ""
+        },
+        body: new URLSearchParams(data)
+      })
+        .then(function (r) { return r.json().then(function (j) { return { status: r.status, json: j }; }); })
+        .then(function (res) {
+          busy(form, false);
+          if (res.json.ok) { onDone(res.json); }
+          else { showError(res.json.error || "خطای نامشخص رخ داد."); }
+        })
+        .catch(function () {
+          busy(form, false);
+          showError("ارتباط با سرور برقرار نشد؛ دوباره تلاش کنید.");
+        });
+    }
+
+    var startForm = document.getElementById("recover-form-start");
+    startForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      post("{% url 'accounts:pw_recover_start' %}",
+        { username: document.getElementById("rec-username").value },
+        startForm,
+        function (data) {
+          document.getElementById("rec-phone").textContent = data.phone || "";
+          showStep(2);
+        });
+    });
+
+    var verifyForm = document.getElementById("recover-form-verify");
+    verifyForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      post("{% url 'accounts:pw_recover_verify' %}",
+        { code: document.getElementById("rec-code").value },
+        verifyForm,
+        function () { showStep(3); });
+    });
+
+    var questionForm = document.getElementById("recover-form-question");
+    document.getElementById("rec-ask-question").addEventListener("click", function () {
+      post("{% url 'accounts:pw_recover_question' %}",
+        { username: document.getElementById("rec-username").value },
+        startForm,
+        function (data) {
+          document.getElementById("rec-question").textContent = data.question || "";
+          showStep("q");
+        });
+    });
+    questionForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      post("{% url 'accounts:pw_recover_question_verify' %}",
+        { answer: document.getElementById("rec-answer").value },
+        questionForm,
+        function () { showStep(3); });
+    });
+
+    document.getElementById("rec-resend").addEventListener("click", function () {
+      post("{% url 'accounts:pw_recover_start' %}",
+        { username: document.getElementById("rec-username").value },
+        verifyForm,
+        function (data) {
+          document.getElementById("rec-phone").textContent = data.phone || "";
+          showError("");
+        });
+    });
+
+    card.querySelectorAll("[data-back]").forEach(function (btn) {
+      btn.addEventListener("click", function () { showStep(1); });
+    });
+
+    var resetForm = document.getElementById("recover-form-reset");
+    resetForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      post("{% url 'accounts:pw_recover_reset' %}", {
+        new_password1: document.getElementById("rec-p1").value,
+        new_password2: document.getElementById("rec-p2").value
+      }, resetForm, function (data) {
+        window.location.href = data.redirect || "{% url 'admin:index' %}";
+      });
+    });
+  })();
+</script>
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% load static fa %}
+{% block title %}{% if area.seo_title %}{{ area.seo_title }}{% else %}{{ area.h1 }} | {{ site_settings.business_name }}{% endif %}{% endblock %}
+{% block meta_description %}{{ page_description }}{% endblock %}
+{% block meta_keywords %}{{ area.h1 }}، {% for b in brands|slice:":4" %}{{ service.name }} {{ b.name }} {{ area.area }}{% if not forloop.last %}، {% endif %}{% endfor %}{% endblock %}
+
+{% block og_title %}{{ area.h1 }}{% endblock %}
+{% block og_description %}{{ page_description }}{% endblock %}
+
+{% block json_ld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "{{ area.h1|escapejs }}",
+  "serviceType": "{{ service.name|escapejs }}",
+  "areaServed": {"@type": "City", "name": "{{ area.area|escapejs }}"},
+  "provider": {
+    "@type": "LocalBusiness",
+    "@id": "{{ request.scheme }}://{{ request.get_host }}/#business",
+    "name": "{{ site_settings.business_name|escapejs }}",
+    "telephone": "{{ site_settings.business_phone|escapejs }}"
+  },
+  "url": "{{ request.build_absolute_uri }}",
+  "description": "{{ page_description|escapejs }}"
+}
+</script>
+{% if brands %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "برندهای {{ area.h1|escapejs }}",
+  "itemListElement": [
+    {% for b in brands %}
+    {
+      "@type": "ListItem",
+      "position": {{ forloop.counter }},
+      "name": "{{ service.name|escapejs }} {{ b.name|escapejs }} {{ area.area|escapejs }}",
+      "url": "{{ request.scheme }}://{{ request.get_host }}{{ b.get_absolute_url }}"
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<section class="border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+  <div class="mx-auto max-w-6xl px-4 py-12 md:py-16">
+    {% breadcrumbs "صفحه اصلی|/;خدمات|/services/;"|add:service.name|add:"|"|add:service.get_absolute_url|add:";"|add:area.area %}
+    <div class="mt-4 flex items-start gap-4">
+      <span class="hidden h-14 w-14 shrink-0 place-items-center rounded-2xl bg-brand-50 dark:bg-brand-950/60 text-brand-600 sm:grid">
+        {% lucide service.icon "w-7 h-7" %}
+      </span>
+      <div>
+        <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white md:text-4xl">{{ area.h1 }}</h1>
+        {% if area.intro %}
+        <p class="mt-3 max-w-3xl leading-8 text-slate-600 dark:text-slate-300">{{ area.intro }}</p>
+        {% endif %}
+      </div>
+    </div>
+    {% if site_settings.inspection_fee %}
+    <p class="mt-5 inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-bold text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
+      {% lucide "badge-check" "w-4 h-4" %}
+      هزینه عیب‌یابی: <span class="num">{{ site_settings.inspection_fee|toman }}</span> تومان
+    </p>
+    {% endif %}
+    <div class="mt-7 flex flex-wrap gap-3">
+      <a href="{{ request_url }}" class="flex items-center gap-2 rounded-xl bg-cta-500 px-5 py-3 text-sm font-extrabold text-slate-900 shadow-card transition hover:bg-cta-600 hover:text-white">
+        {% lucide "clipboard-pen" "w-4 h-4" %} ثبت درخواست در {{ area.area }}
+      </a>
+      <a href="{% tel_href site_settings.business_phone %}" class="num flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-5 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 transition hover:border-brand-300 hover:text-brand-700 dark:hover:border-brand-500 dark:hover:text-brand-300">
+        {% lucide "phone" "w-4 h-4" %} {{ site_settings.business_phone|fa_digits }}
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="mx-auto max-w-6xl px-4 py-12">
+  <div class="grid gap-10 lg:grid-cols-3">
+    <div class="lg:col-span-2">
+      {% if area.content_lines %}
+      <div class="prose-fa">
+        {% for paragraph in area.content_lines %}<p class="mb-5 leading-9 text-slate-700 dark:text-slate-200">{{ paragraph }}</p>{% endfor %}
+      </div>
+      {% else %}
+      <p class="leading-9 text-slate-700 dark:text-slate-200">
+        اگر در {{ area.area }} هستید و {{ service.name }} لازم دارید، کافی است درخواست خود را آنلاین ثبت کنید؛ تعمیرکار پس از بررسی جزئیات، برای هماهنگی زمان مراجعه تماس می‌گیرد. عیب‌یابی قبل از شروع کار اعلام و پس از تأیید شما انجام می‌شود.
+      </p>
+      {% endif %}
+
+      {% if brands %}
+      <h2 class="mt-10 text-xl font-extrabold text-slate-900 dark:text-white">برندهای تحت سرویس در {{ area.area }}</h2>
+      <div class="mt-4 flex flex-wrap gap-2">
+        {% for b in brands %}
+        <a href="{{ b.get_absolute_url }}" class="rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-200 transition hover:border-brand-300 hover:text-brand-700 dark:hover:border-brand-500 dark:hover:text-brand-300">
+          {{ service.name }} {{ b.name }}
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if other_areas %}
+      <h2 class="mt-10 text-xl font-extrabold text-slate-900 dark:text-white">{{ service.name }} در مناطق دیگر</h2>
+      <div class="mt-4 flex flex-wrap gap-2">
+        {% for a in other_areas %}
+        <a href="{{ a.get_absolute_url }}" class="rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-200 transition hover:border-brand-300 hover:text-brand-700 dark:hover:border-brand-500 dark:hover:text-brand-300">
+          {{ a.h1 }}
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <aside class="space-y-4">
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 shadow-sm">
+        <h2 class="text-base font-extrabold text-slate-900 dark:text-white">چرا {{ site_settings.business_name }}؟</h2>
+        <ul class="mt-3 space-y-2.5 text-sm leading-7 text-slate-600 dark:text-slate-300">
+          <li class="flex gap-2"><span class="text-brand-600">{% lucide "clock" "w-4 h-4 mt-1" %}</span> هماهنگی سریع تلفنی در {{ area.area }}</li>
+          <li class="flex gap-2"><span class="text-brand-600">{% lucide "badge-check" "w-4 h-4 mt-1" %}</span> اعلام برآورد هزینه قبل از مراجعه</li>
+          <li class="flex gap-2"><span class="text-brand-600">{% lucide "shield-check" "w-4 h-4 mt-1" %}</span> عیب‌یابی شفاف و تحویل پس از تست</li>
+        </ul>
+      </div>
+      {% if service.articles.exists %}
+      <div class="rounded-2xl border border-brand-200 bg-brand-50 dark:border-brand-900 dark:bg-brand-950/40 p-5">
+        <h2 class="text-base font-extrabold text-brand-800 dark:text-brand-200">راهنمای عیب‌یابی</h2>
+        <ul class="mt-3 space-y-2 text-sm">
+          {% for a in service.articles.all|slice:":4" %}
+          <li><a href="{{ a.get_absolute_url }}" class="font-bold text-brand-700 dark:text-brand-300 hover:underline">{{ a.title }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+    </aside>
+  </div>
+</section>
+{% include "partials/cta_band.html" %}
+{% endblock %}

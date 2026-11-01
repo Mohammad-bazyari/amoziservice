@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% load static fa %}
+{% block title %}مقالات و راهنمای عیب‌یابی | {{ site_settings.business_name }}{% endblock %}
+{% block meta_description %}راهنمای عیب‌یابی دستگاه‌ها: ارورهای متداول پکیج، سرویس دوره‌ای، تعویض فیلتر آب‌تصفیه‌کن و پاسخ تخصصی به مشکلات رایج لوازم خانگی در {{ site_settings.city }}.{% endblock %}
+
+{% block webpage_schema %}{% endblock %}{# custom CollectionPage + ItemList below #}
+{% block json_ld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "مقالات و راهنمای عیب‌یابی",
+  "url": "{{ request.build_absolute_uri }}",
+  "inLanguage": "fa-IR",
+  "publisher": {"@type": "Organization", "name": "{{ site_settings.business_name|escapejs }}"},
+  "mainEntity": {
+    "@type": "ItemList",
+    "itemListElement": [
+      {% for a in articles %}
+      {
+        "@type": "ListItem",
+        "position": {{ forloop.counter }},
+        "name": "{{ a.title|escapejs }}",
+        "url": "{{ request.scheme }}://{{ request.get_host }}{{ a.get_absolute_url }}"
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ]
+  }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<section class="border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+  <div class="mx-auto max-w-6xl px-4 py-12 md:py-16">
+    {% breadcrumbs "صفحه اصلی|/;مقالات و عیب‌یابی|" %}
+    <h1 class="mt-4 text-3xl font-extrabold text-slate-900 dark:text-white md:text-4xl">مقالات و راهنمای عیب‌یابی</h1>
+    <p class="mt-3 max-w-2xl leading-8 text-slate-600 dark:text-slate-300">ارورها و مشکلات رایج دستگاه‌ها را اینجا بررسی کرده‌ایم تا بدانید مشکل از کجاست و چه انتظاری از سرویس داشته باشید.</p>
+    <div class="mt-7 flex flex-wrap gap-3">
+      <a href="{% url 'requests:start' %}" class="flex items-center gap-2 rounded-xl bg-cta-500 px-5 py-3 text-sm font-extrabold text-slate-900 shadow-card transition hover:bg-cta-600 hover:text-white">
+        {% lucide "search-check" "w-4 h-4" %} عیب‌یابی دقیق
+      </a>
+      <a href="{% tel_href site_settings.business_phone %}" class="num flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-5 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 transition hover:border-brand-300 hover:text-brand-700">
+        {% lucide "phone" "w-4 h-4" %} {{ site_settings.business_phone|fa_digits }}
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="mx-auto max-w-6xl px-4 py-12">
+  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    {% for article in articles %}
+    <article class="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm transition hover:shadow-card">
+      <a href="{{ article.get_absolute_url }}" class="block aspect-video overflow-hidden bg-slate-100 dark:bg-slate-800">
+        {% if article.image %}
+          <img src="{{ article.image.url }}" alt="{{ article.title }}" loading="lazy"
+               class="h-full w-full object-cover transition duration-300 group-hover:scale-105">
+        {% else %}
+          <span class="grid h-full w-full place-items-center bg-gradient-to-l from-brand-600 to-brand-400 text-white">
+            {% lucide article.service.icon|default:"wrench" "w-10 h-10 opacity-90" %}
+          </span>
+        {% endif %}
+      </a>
+      <div class="flex flex-1 flex-col p-5">
+        {% if article.service %}
+        <span class="mb-2 inline-flex w-fit items-center gap-1 rounded-full bg-brand-50 dark:bg-brand-950/60 px-2.5 py-1 text-[11px] font-bold text-brand-700 dark:text-brand-300">
+          {% lucide article.service.icon "w-3 h-3" %}{{ article.service.name }}
+        </span>
+        {% endif %}
+        <h2 class="font-bold leading-7 text-slate-900 dark:text-white transition group-hover:text-brand-600 dark:group-hover:text-brand-300">
+          <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
+        </h2>
+        <p class="mt-2 flex-1 text-sm leading-7 text-slate-600 dark:text-slate-300">{{ article.summary }}</p>
+        <a href="{{ article.get_absolute_url }}" class="mt-4 inline-flex items-center gap-1.5 text-sm font-bold text-brand-600 dark:text-brand-400 transition group-hover:gap-2.5">
+          خواندن مقاله {% lucide "arrow-left" "w-4 h-4" %}
+        </a>
+      </div>
+    </article>
+    {% empty %}
+    <p class="text-slate-600 dark:text-slate-300">هنوز مقاله‌ای منتشر نشده است.</p>
+    {% endfor %}
+  </div>
+
+  {% if page_obj and page_obj.paginator.num_pages > 1 %}
+  <nav dir="rtl" aria-label="صفحه‌بندی مقالات" class="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200/80 dark:border-slate-800 pt-6 select-none">
+    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 order-2 sm:order-1">
+      نمایش <span class="font-bold text-slate-900 dark:text-white num">{{ page_obj.start_index|fa_digits }}</span> تا
+      <span class="font-bold text-slate-900 dark:text-white num">{{ page_obj.end_index|fa_digits }}</span> از
+      <span class="font-bold text-slate-900 dark:text-white num">{{ page_obj.paginator.count|fa_digits }}</span> مقاله
+    </p>
+    <ul class="flex items-center gap-1 sm:gap-1.5 order-1 sm:order-2">
+      {# دکمه صفحه قبلی: در RTL شورون رو به راست اشاره دارد #}
+      <li>
+        {% if page_obj.has_previous %}
+          <a href="?page={{ page_obj.previous_page_number }}"
+             class="inline-flex h-10 items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 transition hover:border-brand-300 hover:text-brand-600 dark:hover:border-slate-600 active:scale-95 shadow-xs"
+             aria-label="رفتن به صفحه قبل">
+            {% lucide "chevron-right" "w-4 h-4" %}
+            <span class="hidden xs:inline">قبلی</span>
+          </a>
+        {% else %}
+          <span class="inline-flex h-10 items-center gap-1.5 rounded-xl border border-slate-200/60 dark:border-slate-800 bg-slate-100/50 dark:bg-slate-900/40 px-3 text-xs sm:text-sm font-bold text-slate-400 dark:text-slate-600 cursor-not-allowed opacity-50"
+                aria-disabled="true">
+            {% lucide "chevron-right" "w-4 h-4" %}
+            <span class="hidden xs:inline">قبلی</span>
+          </span>
+        {% endif %}
+      </li>
+
+      {# شماره صفحات با الگوریتم بیضی (همیشه ۱ و آخر + همسایه‌ها) #}
+      {% for p in page_obj|elided_pages %}
+        {% if p == page_obj.paginator.ELLIPSIS %}
+          <li class="flex h-10 w-8 items-center justify-center text-slate-400 dark:text-slate-500" aria-hidden="true">
+            <span class="text-base font-bold">…</span>
+          </li>
+        {% elif p == page_obj.number %}
+          <li>
+            <span class="inline-flex h-10 min-w-10 items-center justify-center rounded-xl bg-brand-600 px-2 text-xs sm:text-sm font-black text-white shadow-sm"
+                  aria-current="page"
+                  aria-label="صفحه {{ p|fa_digits }}">
+              <span class="num">{{ p|fa_digits }}</span>
+            </span>
+          </li>
+        {% else %}
+          <li>
+            <a href="?page={{ p }}"
+               class="inline-flex h-10 min-w-10 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 transition hover:border-brand-300 hover:text-brand-600 dark:hover:border-slate-600 active:scale-95 shadow-xs"
+               aria-label="رفتن به صفحه {{ p|fa_digits }}">
+              <span class="num">{{ p|fa_digits }}</span>
+            </a>
+          </li>
+        {% endif %}
+      {% endfor %}
+
+      {# دکمه صفحه بعدی: در RTL شورون رو به چپ اشاره دارد #}
+      <li>
+        {% if page_obj.has_next %}
+          <a href="?page={{ page_obj.next_page_number }}"
+             class="inline-flex h-10 items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 transition hover:border-brand-300 hover:text-brand-600 dark:hover:border-slate-600 active:scale-95 shadow-xs"
+             aria-label="رفتن به صفحه بعد">
+            <span class="hidden xs:inline">بعدی</span>
+            {% lucide "chevron-left" "w-4 h-4" %}
+          </a>
+        {% else %}
+          <span class="inline-flex h-10 items-center gap-1.5 rounded-xl border border-slate-200/60 dark:border-slate-800 bg-slate-100/50 dark:bg-slate-900/40 px-3 text-xs sm:text-sm font-bold text-slate-400 dark:text-slate-600 cursor-not-allowed opacity-50"
+                aria-disabled="true">
+            <span class="hidden xs:inline">بعدی</span>
+            {% lucide "chevron-left" "w-4 h-4" %}
+          </span>
+        {% endif %}
+      </li>
+    </ul>
+  </nav>
+  {% endif %}
+</section>
+
+{% include "partials/cta_band.html" %}
+{% endblock %}

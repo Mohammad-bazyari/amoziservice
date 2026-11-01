@@ -1,0 +1,12 @@
+{% load i18n %}
+<nav aria-label="مسیر صفحه" class="text-xs text-slate-500 dark:text-slate-400">
+  <ol class="flex flex-wrap items-center gap-1.5">
+    {% for item in breadcrumb_items %}
+    <li class="flex items-center gap-1.5">
+      {% if item.url %}<a href="{{ item.url }}" class="transition hover:text-brand-700">{{ item.title }}</a>
+      {% else %}<span class="font-medium text-slate-700 dark:text-slate-200" aria-current="page">{{ item.title }}</span>{% endif %}
+      {% if not forloop.last %}<span aria-hidden="true" class="text-slate-300">/</span>{% endif %}
+    </li>
+    {% endfor %}
+  </ol>
+</nav>

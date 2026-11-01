@@ -1,0 +1,24 @@
+{% extends "admin/login.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+    .login-recover-link {
+      text-align: center;
+      margin: 1rem auto 0;
+      max-width: 420px;
+      font-size: .9rem;
+    }
+    .login-recover-link a { color: #1d4ed8; font-weight: 700; text-decoration: none; }
+    .login-recover-link a:hover { text-decoration: underline; }
+  </style>
+{% endblock %}
+
+{% block content %}
+{{ block.super }}
+
+<p class="login-recover-link" dir="rtl">
+  <a href="{% url 'accounts:pw_recover' %}">رمز عبور را فراموش کرده‌اید؟ بازیابی با پیامک</a>
+</p>
+{% endblock %}

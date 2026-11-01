@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load fa %}
+{% block title %}خدمات | {{ site_settings.business_name }}{% endblock %}
+{% block meta_description %}فهرست خدمات {{ site_settings.business_name }} در استان {{ site_settings.province }}؛ تعمیر و سرویس لوازم خانگی با ثبت درخواست آنلاین.{% endblock %}
+
+{% block content %}
+<section class="relative overflow-hidden border-b border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900">
+  <div class="pointer-events-none absolute inset-x-0 top-0 h-full bg-line-grid opacity-60 [mask-image:linear-gradient(to_bottom,black,transparent)]" aria-hidden="true"></div>
+  <div class="relative mx-auto max-w-6xl px-4 py-12 md:py-16">
+    {% breadcrumbs "صفحه اصلی|/;خدمات|" %}
+    <div class="mt-5 flex items-center gap-2">
+      <span class="badge-pulse-dot text-brand-600 dark:text-brand-400" aria-hidden="true"></span>
+      <span class="text-xs font-bold text-brand-600 dark:text-brand-400">سرویس تخصصی در محل</span>
+    </div>
+    <h1 class="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white md:text-4xl">خدمات تخصصی تعمیرات</h1>
+    <p class="mt-3 max-w-2xl leading-8 text-slate-600 dark:text-slate-300">
+      هر خدمت یک مسیر مشخص دارد: ثبت درخواست آنلاین، عیب‌یابی تخصصی، تماس فوری سرویس‌کار و انجام کار در محل با قطعات اصل.
+    </p>
+  </div>
+</section>
+
+<section class="mx-auto max-w-6xl px-4 py-12">
+  <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    {% for service in services %}
+    <a href="{{ service.get_absolute_url }}"
+       class="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-card transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-300 dark:hover:border-brand-700/80 hover:shadow-xl">
+      <div class="surface-sheen pointer-events-none absolute inset-x-0 top-0 h-28 opacity-60" aria-hidden="true"></div>
+      <div>
+        <div class="flex items-center justify-between">
+          <span class="grid h-12 w-12 place-items-center rounded-2xl bg-brand-50 dark:bg-brand-950/70 text-brand-600 dark:text-brand-400 ring-1 ring-brand-100 dark:ring-brand-900/60 transition-all duration-300 group-hover:bg-brand-600 group-hover:text-white group-hover:ring-brand-600 group-hover:shadow-md group-hover:shadow-brand-600/25">
+            {% lucide service.icon "w-6 h-6" %}
+          </span>
+          <span class="rounded-full bg-slate-100 dark:bg-slate-800/80 px-2.5 py-1 text-[11px] font-bold text-slate-500 dark:text-slate-400">
+            تخصصی
+          </span>
+        </div>
+        <h2 class="mt-5 text-xl font-extrabold text-slate-900 dark:text-white transition-colors group-hover:text-brand-600 dark:group-hover:text-brand-300">{{ service.name }}</h2>
+        <p class="mt-2.5 text-sm leading-7 text-slate-600 dark:text-slate-300">{{ service.short_description }}</p>
+      </div>
+      <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+        <span class="inline-flex items-center gap-1.5 text-sm font-bold text-brand-600 dark:text-brand-400 transition-all duration-200 group-hover:gap-2.5">
+          جزئیات خدمت و تعرفه {% lucide "arrow-left" "w-4 h-4" %}
+        </span>
+      </div>
+    </a>
+    {% empty %}
+    <p class="text-slate-500 dark:text-slate-400">فعلاً خدمتی ثبت نشده است.</p>
+    {% endfor %}
+  </div>
+</section>
+
+{% include "partials/cta_band.html" %}
+{% endblock %}

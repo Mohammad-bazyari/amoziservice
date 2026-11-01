@@ -1,0 +1,371 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+
+{% block title %}{{ title }} | {{ site_title|default:'پنل مدیریت' }}{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <script>
+    // Force Django's own three-state theme system OFF: it shares the
+    // localStorage 'theme' key with the public site and its dark_mode.css
+    // fights our hand-tuned surfaces. The admin has its own toggle below,
+    // stored under 'admin-theme' (html[data-admin-theme]).
+    document.documentElement.setAttribute("data-theme", "light");
+    (function () {
+      try {
+        var t = localStorage.getItem("admin-theme");
+        if (t === "dark" || t === "light") {
+          document.documentElement.setAttribute("data-admin-theme", t);
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  <link rel="stylesheet" href="{% static 'css/admin-theme.css' %}">
+  <link rel="stylesheet" href="{% static 'css/admin-mobile.css' %}">
+  <script defer src="{% static 'js/lucide-icons.js' %}"></script>
+  <script defer src="{% static 'js/admin-icon-picker.js' %}"></script>
+  <script defer src="{% static 'js/admin-shortcuts.js' %}"></script>
+  <style>
+    /* Filter toggle button helper */
+    #filter-toggle-btn { display: none; }
+    /* Password show/hide toggle (eye icon) */
+    .pw-wrap { position: relative; display: block; }
+    .pw-toggle-btn {
+      position: absolute; left: .5rem; top: 50%;
+      transform: translateY(-50%);
+      background: transparent; border: none;
+      border-radius: .45rem; cursor: pointer;
+      padding: .3rem; line-height: 0;
+      color: #64748b; user-select: none;
+    }
+    .pw-toggle-btn:hover { color: #334155; }
+    .pw-toggle-btn:focus-visible { outline: 2px solid var(--b-brand); outline-offset: 1px; }
+    .pw-toggle-btn svg { width: 1.15rem; height: 1.15rem; display: block; }
+    input[type="password"], input[type="text"].pw-revealed { padding-left: 2.4rem !important; }
+  </style>
+  <script>
+    // ===== Mobile admin enhancements (no-ops on desktop) ================
+    // 1) Changelist table → tappable cards: copy each column's header text
+    //    onto its cells as data-label so the mobile CSS can render
+    //    "label: value" rows; first cell becomes the card title.
+    // 2) Collapsible filter panel: a toggle button above the list.
+    (function () {
+      function isMobile() { return window.matchMedia("(max-width: 767px)").matches; }
+
+      function tagCells() {
+        var table = document.getElementById("result_list");
+        if (!table || table.classList.contains("mobile-cards")) return;
+        table.classList.add("mobile-cards");
+        var heads = Array.prototype.map.call(
+          table.querySelectorAll("thead th"),
+          function (th) { return th.textContent.trim(); }
+        );
+        table.querySelectorAll("tbody tr").forEach(function (row) {
+          // Django renders the first data column as <th> inside tbody —
+          // walk th+td in DOM order or every label shifts by one column.
+          Array.prototype.forEach.call(row.querySelectorAll("th, td"), function (cell, i) {
+            cell.setAttribute("data-label", heads[i] || "");
+          });
+        });
+      }
+
+      function addFilterToggle() {
+        var filter = document.getElementById("changelist-filter");
+        if (!filter || document.getElementById("filter-toggle-btn")) return;
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.id = "filter-toggle-btn";
+        btn.setAttribute("aria-expanded", "false");
+        btn.setAttribute("aria-controls", "changelist-filter");
+        btn.innerHTML = "▼ فیلترها";
+        btn.addEventListener("click", function () {
+          var open = filter.classList.toggle("open");
+          btn.setAttribute("aria-expanded", String(open));
+          btn.innerHTML = open ? "▲ فیلترها" : "▼ فیلترها";
+        });
+        filter.parentNode.insertBefore(btn, filter);
+      }
+
+      function enhance() {
+        if (!isMobile()) return;
+        tagCells();
+        addFilterToggle();
+        var search = document.getElementById("searchbar");
+        if (search && !search.placeholder) search.placeholder = "جستجو…";
+      }
+
+      document.addEventListener("DOMContentLoaded", enhance);
+      // admin JS re-renders parts of the page (e.g. after actions) — re-apply
+      new MutationObserver(function () { enhance(); })
+        .observe(document.documentElement, { childList: true, subtree: true });
+    })();
+
+    // ===== Admin dark/light theme toggle ==================================
+    // Own toggle + own storage key ('admin-theme'); Django's shared one is
+    // pinned off above. Default: light. Sun/moon swap via CSS with expanding circular reveal.
+    (function () {
+      function apply(mode) {
+        document.documentElement.setAttribute("data-admin-theme", mode);
+        try { localStorage.setItem("admin-theme", mode); } catch (e) {}
+      }
+      var isBusy = false;
+      document.addEventListener("DOMContentLoaded", function () {
+        var btn = document.getElementById("admin-theme-toggle");
+        if (!btn) return;
+        var current = document.documentElement.getAttribute("data-admin-theme") || "light";
+        btn.setAttribute("aria-pressed", String(current === "dark"));
+
+        function toggleTheme(e) {
+          if (isBusy) return;
+          var next = current === "dark" ? "light" : "dark";
+          var prefersReducedMotion = window.matchMedia &&
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+          if (!document.startViewTransition || prefersReducedMotion) {
+            current = next;
+            apply(current);
+            btn.setAttribute("aria-pressed", String(current === "dark"));
+            return;
+          }
+
+          isBusy = true;
+          var rect = btn.getBoundingClientRect();
+          var ev = e || window.event;
+          var originX = (ev && typeof ev.clientX === 'number' && (ev.clientX > 0 || ev.clientY > 0)) ? ev.clientX : (rect.left + rect.width / 2);
+          var originY = (ev && typeof ev.clientY === 'number' && (ev.clientX > 0 || ev.clientY > 0)) ? ev.clientY : (rect.top + rect.height / 2);
+          var maxDistX = Math.max(originX, window.innerWidth - originX);
+          var maxDistY = Math.max(originY, window.innerHeight - originY);
+          var endRadius = Math.ceil(Math.hypot(maxDistX, maxDistY)) + 2;
+
+          var transition;
+          try {
+            transition = document.startViewTransition(function () {
+              current = next;
+              apply(current);
+              btn.setAttribute("aria-pressed", String(current === "dark"));
+            });
+          } catch (err) {
+            current = next;
+            apply(current);
+            btn.setAttribute("aria-pressed", String(current === "dark"));
+            isBusy = false;
+            return;
+          }
+
+          transition.ready.then(function () {
+            try {
+              document.documentElement.animate(
+                {
+                  clipPath: [
+                    'circle(0px at ' + originX + 'px ' + originY + 'px)',
+                    'circle(' + endRadius + 'px at ' + originX + 'px ' + originY + 'px)'
+                  ]
+                },
+                {
+                  duration: 650,
+                  easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+                  pseudoElement: '::view-transition-new(root)'
+                }
+              );
+            } catch (err) {}
+
+            var cleanup = function () { isBusy = false; };
+            if (transition.finished && typeof transition.finished.finally === 'function') {
+              transition.finished.finally(cleanup);
+            } else {
+              window.setTimeout(cleanup, 700);
+            }
+          }).catch(function () {
+            isBusy = false;
+          });
+        }
+
+        btn.addEventListener("click", toggleTheme);
+        document.addEventListener("keydown", function (e) {
+          if (e.altKey && (e.key === "t" || e.key === "ف")) {
+            e.preventDefault();
+            toggleTheme();
+          }
+        });
+      });
+    })();
+
+    // ===== Mobile navigation drawer ======================================
+    // Django hides #nav-sidebar below 767px; the mobile stylesheet turns it
+    // into a right-side drawer. This wires the open/close interactions.
+    (function () {
+      var menuBtn, nav, backdrop, closeBtn, bodyScrollY = 0;
+
+      function ensureChrome() {
+        nav = document.getElementById("nav-sidebar");
+        if (!nav || document.getElementById("drawer-backdrop")) return;
+        backdrop = document.createElement("div");
+        backdrop.id = "drawer-backdrop";
+        document.body.appendChild(backdrop);
+        backdrop.addEventListener("click", close);
+        var head = document.createElement("div");
+        head.id = "drawer-head";
+        head.innerHTML = '<span>منوی مدیریت</span>';
+        closeBtn = document.createElement("button");
+        closeBtn.type = "button";
+        closeBtn.id = "drawer-close";
+        closeBtn.setAttribute("aria-label", "بستن منو");
+        closeBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+        closeBtn.addEventListener("click", close);
+        head.appendChild(closeBtn);
+        nav.insertBefore(head, nav.firstChild);
+        menuBtn = document.getElementById("mobile-admin-menu-btn");
+        menuBtn.addEventListener("click", open);
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape") close();
+        });
+      }
+
+      // iOS-safe scroll lock: fixing the body in place (compensated by
+      // -scrollY) keeps the page exactly where it is — no jump/shake when
+      // the drawer opens, unlike html overflow:hidden.
+      function lockScroll() {
+        bodyScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+        document.body.style.position = "fixed";
+        document.body.style.top = "-" + bodyScrollY + "px";
+        document.body.style.left = "0";
+        document.body.style.right = "0";
+        document.body.style.width = "100%";
+      }
+
+      function unlockScroll() {
+        document.body.style.position = "";
+        document.body.style.top = "";
+        document.body.style.left = "";
+        document.body.style.right = "";
+        document.body.style.width = "";
+        window.scrollTo(0, bodyScrollY);
+      }
+
+      function open() {
+        ensureChrome();
+        if (!nav || nav.classList.contains("open")) return; // idempotent (no double scroll-lock)
+        // Desktop: Django's stock JS synced state with .main.shifted / aria on
+        // nav-sidebar. Our drawer owns visibility now; reset stale state so
+        // the drawer always starts from closed regardless of localStorage.
+        nav.removeAttribute("aria-expanded");
+        // Open INSTANTLY (transition disabled for this frame): a background
+        // or throttled webview can freeze CSS transitions mid-flight, leaving
+        // the drawer stuck off-screen forever — the “tap does nothing” bug.
+        // The transition is re-enabled right after so closing still animates.
+        nav.style.transition = "none";
+        nav.classList.add("open");
+        backdrop.classList.add("show");
+        menuBtn.setAttribute("aria-expanded", "true");
+        lockScroll();
+        // Focus the close button (a11y focus move) — NOT the filter input:
+        // auto-focusing an input pops the on-screen keyboard on phones and
+        // covers half the drawer. preventScroll avoids scroll-to-reveal jumps.
+        if (closeBtn) {
+          try { closeBtn.focus({ preventScroll: true }); } catch (e) { closeBtn.focus(); }
+        }
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () { nav.style.transition = ""; });
+        });
+      }
+
+      function close() {
+        if (!nav || !nav.classList.contains("open")) return; // Escape/click with no open drawer is a no-op
+        nav.classList.remove("open");
+        backdrop && backdrop.classList.remove("show");
+        menuBtn && menuBtn.setAttribute("aria-expanded", "false");
+        unlockScroll();
+      }
+
+      document.addEventListener("DOMContentLoaded", ensureChrome);
+    })();
+  </script>
+  <script>
+    // Password visibility toggle: works on login, add/change user, and
+    // change-password forms. Wraps every password input once.
+    (function () {
+      var EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>';
+      var EYE_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg>';
+
+      function enhance() {
+        document.querySelectorAll('input[type="password"]').forEach(function (input) {
+          if (input.dataset.pwToggle) return;
+          input.dataset.pwToggle = "1";
+          var wrap = document.createElement("span");
+          wrap.className = "pw-wrap";
+          input.parentNode.insertBefore(wrap, input);
+          wrap.appendChild(input);
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "pw-toggle-btn";
+          btn.setAttribute("aria-pressed", "false");
+          btn.setAttribute("aria-label", "نمایش رمز عبور");
+          btn.innerHTML = EYE;
+          btn.addEventListener("click", function () {
+            var show = input.type === "password";
+            input.type = show ? "text" : "password";
+            input.classList.toggle("pw-revealed", show);
+            btn.innerHTML = show ? EYE_OFF : EYE;
+            btn.setAttribute("aria-pressed", String(show));
+            btn.setAttribute("aria-label", show ? "پنهان کردن رمز عبور" : "نمایش رمز عبور");
+          });
+          wrap.appendChild(btn);
+        });
+      }
+      document.addEventListener("DOMContentLoaded", enhance);
+      // Inline rows added later (e.g. user add form) get enhanced too.
+      new MutationObserver(function () { enhance(); })
+        .observe(document.documentElement, { childList: true, subtree: true });
+    })();
+  </script>
+{% endblock %}
+
+{% block branding %}
+  {# RTL: first child renders right-most. Order: ☰ menu (right-most), brand, theme (left). #}
+  <button type="button" id="mobile-admin-menu-btn" aria-label="باز کردن منو" aria-controls="nav-sidebar" aria-expanded="false" title="فهرست بخش‌های پنل">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+  </button>
+  <h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+      <img src="{% static 'img/logo.svg' %}" alt="اوستا سرویس" width="28" height="28" style="border-radius:.4rem">
+      <span>{{ site_header }}</span>
+      <span class="admin-brand-badge">مدیریت</span>
+    </a>
+  </h1>
+  <button type="button" id="admin-theme-toggle" aria-label="تغییر تم روشن/تاریک" title="تغییر تم (Alt+T)">
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+  </button>
+{% endblock %}
+
+{% block userlinks %}
+  <div class="admin-header-chip" title="کاربر وارد شده">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>{{ user.get_short_name|default:user.username }}</span>
+  </div>
+
+  {% if site_url %}
+    <a href="{{ site_url }}" target="_blank" rel="noopener noreferrer" class="admin-header-btn" title="مشاهده سایت در تب جدید">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+      <span>مشاهده سایت</span>
+    </a>
+  {% endif %}
+
+  {% if user.has_usable_password %}
+    <a href="{% url 'admin:password_change' %}" class="admin-header-btn" title="تغییر رمز عبور">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 2-2 2m-1.414 1.414L14 9.001M3 21h4l9-9-4-4-9 9v4Z"/></svg>
+      <span>تغییر رمز</span>
+    </a>
+  {% endif %}
+
+  <form id="logout-form" method="post" action="{% url 'admin:logout' %}" style="display:inline;margin:0">
+    {% csrf_token %}
+    <button type="submit" class="admin-header-btn danger" title="خروج از پنل مدیریت">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+      <span>خروج</span>
+    </button>
+  </form>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

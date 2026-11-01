@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load fa %}
+{% block title %}پرسش‌های متداول | {{ site_settings.business_name }}{% endblock %}
+{% block meta_description %}پاسخ پرسش‌های رایج درباره ثبت درخواست تعمیر پکیج، هزینه‌ها و محدوده خدمات در {{ site_settings.city }}.{% endblock %}
+
+{% block json_ld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "fa-IR",
+  "mainEntity": [
+    {% for faq in faqs %}
+    {
+      "@type": "Question",
+      "name": "{{ faq.question|escapejs }}",
+      "acceptedAnswer": {"@type": "Answer", "text": "{{ faq.answer|render_text|striptags|escapejs }}"}
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<section class="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+  <div class="mx-auto max-w-6xl px-4 py-5">
+    {% breadcrumbs "صفحه اصلی|/;پرسش‌های متداول|" %}
+  </div>
+</section>
+
+{% include "partials/faq_block.html" with faq_items=faqs faq_heading="پرسش‌های متداول" faq_heading_tag="h1" faq_intro="هر چیزی که پیش از ثبت درخواست لازم است بدانید: هزینه عیب‌یابی، محدوده خدمات و مراحل کار." faq_id_prefix="faq-page" %}
+
+{% include "partials/cta_band.html" %}
+{% endblock %}

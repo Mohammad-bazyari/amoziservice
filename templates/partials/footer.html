@@ -1,0 +1,95 @@
+{% load fa %}
+<footer class="relative overflow-hidden texture-grain mt-16 border-t border-slate-800/80 bg-slate-950 text-slate-300">
+  {# هاله‌ی خیلی ملایم برند در نبض بالای فوتر — تم فوتر ثابت تاریک است؛ رنگ فقط از برند #}
+  <div class="pointer-events-none absolute inset-x-0 top-0 h-56 bg-ambient-glow opacity-80" aria-hidden="true"></div>
+
+  <div class="relative mx-auto grid max-w-6xl gap-10 px-4 py-14 md:grid-cols-4">
+    <div class="md:col-span-2">
+      <div class="flex items-center gap-2.5">
+        <span class="block h-10 w-10 shrink-0">
+          {% include "partials/logo.html" with logo_class="h-10 w-10" %}
+        </span>
+        <span>
+          <span class="block text-lg font-extrabold tracking-tight">
+            <span class="text-brand-400">{{ site_settings.business_name|first_word }}</span>{% if site_settings.business_name|rest_words %} <span class="text-white">{{ site_settings.business_name|rest_words }}</span>{% endif %}
+          </span>
+          <span class="block text-[11px] font-medium text-slate-400">تعمیر و سرویس تخصصی در {{ site_settings.city }}</span>
+        </span>
+      </div>
+      <p class="mt-4 max-w-md text-sm leading-7 text-slate-400">
+        {{ site_settings.footer_text|default:"تعمیر تخصصی پکیج دیواری در استان تهران؛ ثبت درخواست آنلاین و تماس سریع تعمیرکار." }}
+      </p>
+      <div class="mt-6 flex items-center gap-2.5">
+        {% if site_settings.whatsapp %}
+          <a href="{{ site_settings.whatsapp_href }}" target="_blank" rel="noopener" aria-label="واتساپ"
+             class="grid h-10 w-10 place-items-center rounded-xl border border-slate-800 bg-slate-900 text-slate-300 shadow-sm transition hover:border-brand-500 hover:bg-brand-600 hover:text-white active:scale-95">
+            {% lucide "message-circle" "w-5 h-5" %}
+          </a>
+        {% endif %}
+        {% if site_settings.instagram %}
+          <a href="{{ site_settings.instagram }}" target="_blank" rel="noopener" aria-label="اینستاگرام"
+             class="grid h-10 w-10 place-items-center rounded-xl border border-slate-800 bg-slate-900 text-slate-300 shadow-sm transition hover:border-brand-500 hover:bg-brand-600 hover:text-white active:scale-95">
+            {% lucide "instagram" "w-5 h-5" %}
+          </a>
+        {% endif %}
+        {% if site_settings.telegram %}
+          <a href="{{ site_settings.telegram }}" target="_blank" rel="noopener" aria-label="تلگرام"
+             class="grid h-10 w-10 place-items-center rounded-xl border border-slate-800 bg-slate-900 text-slate-300 shadow-sm transition hover:border-brand-500 hover:bg-brand-600 hover:text-white active:scale-95">
+            {% lucide "send" "w-5 h-5" %}
+          </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div>
+      <h3 class="text-sm font-bold text-white">دسترسی سریع</h3>
+      <ul class="mt-4 grid gap-2.5 text-sm">
+        <li><a class="group inline-flex items-center gap-1.5 text-slate-400 transition hover:text-white" href="{% url 'requests:start' %}">{% lucide "arrow-left" "w-3.5 h-3.5 text-brand-500 transition-transform group-hover:-translate-x-1" %}ثبت درخواست تعمیر</a></li>
+        <li><a class="group inline-flex items-center gap-1.5 text-slate-400 transition hover:text-white" href="{% url 'services:list' %}">{% lucide "arrow-left" "w-3.5 h-3.5 text-brand-500 transition-transform group-hover:-translate-x-1" %}خدمات</a></li>
+        {% for area in footer_areas %}
+        <li><a class="group inline-flex items-center gap-1.5 text-slate-400 transition hover:text-white" href="{{ area.get_absolute_url }}">{% lucide "map-pin" "w-3.5 h-3.5 text-brand-500" %}{{ area.h1 }}</a></li>
+        {% endfor %}
+        <li><a class="group inline-flex items-center gap-1.5 text-slate-400 transition hover:text-white" href="{% url 'brands:list' %}">{% lucide "arrow-left" "w-3.5 h-3.5 text-brand-500 transition-transform group-hover:-translate-x-1" %}برندها</a></li>
+        <li><a class="group inline-flex items-center gap-1.5 text-slate-400 transition hover:text-white" href="{% url 'core:faq' %}">{% lucide "arrow-left" "w-3.5 h-3.5 text-brand-500 transition-transform group-hover:-translate-x-1" %}سوالات متداول</a></li>
+        <li><a class="group inline-flex items-center gap-1.5 text-slate-400 transition hover:text-white" href="{% url 'content:articles' %}">{% lucide "arrow-left" "w-3.5 h-3.5 text-brand-500 transition-transform group-hover:-translate-x-1" %}مقالات و عیب‌یابی</a></li>
+        <li><a class="group inline-flex items-center gap-1.5 text-slate-400 transition hover:text-white" href="{% url 'core:about' %}">{% lucide "arrow-left" "w-3.5 h-3.5 text-brand-500 transition-transform group-hover:-translate-x-1" %}درباره ما</a></li>
+        <li><a class="group inline-flex items-center gap-1.5 text-slate-400 transition hover:text-white" href="{% url 'core:contact' %}">{% lucide "arrow-left" "w-3.5 h-3.5 text-brand-500 transition-transform group-hover:-translate-x-1" %}تماس با ما</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h3 class="text-sm font-bold text-white">اطلاعات تماس</h3>
+      <ul class="mt-4 grid gap-3 text-sm">
+        <li class="flex items-start gap-2.5">
+          <span class="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-slate-900 text-brand-400 ring-1 ring-slate-800">
+            {% lucide "phone" "w-4 h-4" %}
+          </span>
+          <a href="{% tel_href site_settings.business_phone %}" class="num pt-0.5 transition hover:text-white">{{ site_settings.business_phone|fa_digits }}</a>
+        </li>
+        {% if site_settings.working_hours %}
+        <li class="flex items-start gap-2.5">
+          <span class="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-slate-900 text-brand-400 ring-1 ring-slate-800">
+            {% lucide "clock" "w-4 h-4" %}
+          </span>
+          <span class="pt-0.5">{{ site_settings.working_hours }}</span>
+        </li>
+        {% endif %}
+        {% if site_settings.address %}
+        <li class="flex items-start gap-2.5">
+          <span class="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-slate-900 text-brand-400 ring-1 ring-slate-800">
+            {% lucide "map-pin" "w-4 h-4" %}
+          </span>
+          <span class="pt-0.5">{{ site_settings.province }}، {{ site_settings.address }}</span>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="border-t border-slate-800/80">
+    <div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 py-5 text-center text-xs text-slate-500 sm:flex-row sm:text-start">
+      <span>© {{ site_settings.business_name }} — تمامی حقوق محفوظ است.</span>
+      <span class="flex items-center gap-1.5 text-slate-400">{% lucide "shield-check" "w-3.5 h-3.5 text-brand-500" %}خدمات تخصصی در سراسر استان {{ site_settings.province }}</span>
+    </div>
+  </div>
+</footer>

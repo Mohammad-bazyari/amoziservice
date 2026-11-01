@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load fa %}
+{% block title %}{{ about_content.title|default:"درباره ما" }} | {{ site_settings.business_name }}{% endblock %}
+{% block meta_description %}{% if about_content and about_content.intro %}{{ about_content.intro }}{% else %}آشنایی با {{ site_settings.business_name }}{% endif %}{% endblock %}
+
+{% block content %}
+<section class="relative overflow-hidden border-b border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900">
+  <div class="pointer-events-none absolute inset-x-0 top-0 h-full bg-line-grid opacity-60 [mask-image:linear-gradient(to_bottom,black,transparent)]" aria-hidden="true"></div>
+  <div class="relative mx-auto max-w-6xl px-4 py-12 md:py-16">
+    {% breadcrumbs "صفحه اصلی|/;درباره ما|" %}
+    <div class="mt-5 flex items-center gap-2">
+      <span class="badge-pulse-dot text-brand-600 dark:text-brand-400" aria-hidden="true"></span>
+      <span class="text-xs font-bold text-brand-600 dark:text-brand-400">تخصص، شفافیت و ضمانت قطعات</span>
+    </div>
+    <h1 class="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white md:text-4xl">{{ about_content.title }}</h1>
+    {% if about_content.intro %}
+    <p class="mt-3 max-w-3xl leading-8 text-slate-600 dark:text-slate-300">{{ about_content.intro }}</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="mx-auto max-w-4xl px-4 py-12 md:py-16">
+  {% if about_content.image %}
+  <div class="relative mb-10 overflow-hidden rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-xl">
+    <img src="{{ about_content.image.url }}" alt="{{ about_content.title }}" width="1200" height="675" class="w-full object-cover">
+  </div>
+  {% endif %}
+
+  <div class="prose-fa space-y-4">
+    {% for paragraph in about_content.body_lines %}
+      <p class="text-base leading-9 text-slate-700 dark:text-slate-200">{{ paragraph }}</p>
+    {% empty %}
+      <p class="text-base leading-9 text-slate-700 dark:text-slate-200">{{ about_content.body }}</p>
+    {% endfor %}
+  </div>
+
+  <!-- Trust value cards -->
+  <div class="mt-12 grid gap-5 sm:grid-cols-3">
+    <div class="group relative overflow-hidden rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 text-center shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-brand-300 hover:shadow-lg">
+      <div class="surface-sheen pointer-events-none absolute inset-x-0 top-0 h-20 opacity-60" aria-hidden="true"></div>
+      <span class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-brand-50 dark:bg-brand-950/70 text-brand-600 dark:text-brand-400 ring-1 ring-brand-100 dark:ring-brand-900/60 transition-transform group-hover:scale-105">
+        {% lucide "target" "w-6 h-6" %}
+      </span>
+      <h2 class="mt-4 text-base font-extrabold text-slate-900 dark:text-white">تخصص متمرکز</h2>
+      <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">سرویس و عیب‌یابی اصولی</p>
+    </div>
+    <div class="group relative overflow-hidden rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 text-center shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-brand-300 hover:shadow-lg">
+      <div class="surface-sheen pointer-events-none absolute inset-x-0 top-0 h-20 opacity-60" aria-hidden="true"></div>
+      <span class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-brand-50 dark:bg-brand-950/70 text-brand-600 dark:text-brand-400 ring-1 ring-brand-100 dark:ring-brand-900/60 transition-transform group-hover:scale-105">
+        {% lucide "map-pin" "w-6 h-6" %}
+      </span>
+      <h2 class="mt-4 text-base font-extrabold text-slate-900 dark:text-white">پوشش کامل</h2>
+      <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">۲۲ منطقه تهران و حومه</p>
+    </div>
+    <div class="group relative overflow-hidden rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 text-center shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-brand-300 hover:shadow-lg">
+      <div class="surface-sheen pointer-events-none absolute inset-x-0 top-0 h-20 opacity-60" aria-hidden="true"></div>
+      <span class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-brand-50 dark:bg-brand-950/70 text-brand-600 dark:text-brand-400 ring-1 ring-brand-100 dark:ring-brand-900/60 transition-transform group-hover:scale-105">
+        {% lucide "shield-check" "w-6 h-6" %}
+      </span>
+      <h2 class="mt-4 text-base font-extrabold text-slate-900 dark:text-white">ضمانت خدمات</h2>
+      <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">قطعات اصلی و فاکتور شفاف</p>
+    </div>
+  </div>
+</section>
+
+{% include "partials/cta_band.html" %}
+{% endblock %}

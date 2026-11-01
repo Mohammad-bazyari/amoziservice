@@ -1,0 +1,54 @@
+# .htaccess — copy this file to the PUBLIC folder cPanel serves
+# (Document Root, e.g. public_html or the folder you set as the app root)
+# and rename it to `.htaccess` (without .example).
+#
+# It complements cPanel's "Setup Python App" (Passenger):
+#   - Passenger handles the Python app itself (everything not static/media)
+#   - Apache/LiteSpeed serves media/ and staticfiles/ directly (much faster)
+#   - It blocks access to sensitive files
+
+# --- Serve uploaded media and collected static files directly ------------
+# Adjust the two RewriteRule paths if your app root is not the document root.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Don't interfere with existing files/directories (static, media, .well-known)
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Directly serve /media/ and /static/ from disk
+  RewriteRule ^media/(.*)$ media/$1 [L]
+  RewriteRule ^static/(.*)$ staticfiles/$1 [L]
+
+  # Everything else goes to Passenger (the Django app)
+  # Passenger is mounted by cPanel automatically; no explicit rule needed.
+</IfModule>
+
+# --- Never serve these ----------------------------------------------------
+<FilesMatch "^\.env|\.sqlite3$|passenger_wsgi\.py$|requirements\.txt$">
+  Require all denied
+</FilesMatch>
+
+# --- Compression & caching (safe defaults) ---------------------------------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript image/svg+xml
+</IfModule>
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  # HTML must never be cached by proxies/browsers
+  ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
+
+# --- Security headers (Django sets some too; these are belt-and-braces) ---
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "DENY"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>

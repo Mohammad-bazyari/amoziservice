@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Django
+db.sqlite3
+staticfiles/
+media/
+*.log
+logs/
+
+# Node
+node_modules/
+
+# Secrets
+.env
+.env.local
+.env.*.local
+
+# Builds and archives
+*.zip
+osta-deploy.zip
+
+# Temp / tool caches
+.freebuff/
+.tscheck/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+

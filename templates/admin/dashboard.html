@@ -1,0 +1,277 @@
+{% extends "admin/base_site.html" %}
+{% load fa static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+<div style="display:flex;flex-direction:column;gap:1.25rem">
+
+  <!-- Dashboard Welcome & Meta Header -->
+  <div class="admin-card" style="padding:1.25rem 1.5rem">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+      <div>
+        <h2 style="font-size:1.35rem;font-weight:800;color:var(--b-ink);margin:0 0 0.35rem;display:flex;align-items:center;gap:0.5rem">
+          <span>داشبورد مدیریت اوستا سرویس</span>
+        </h2>
+        <p style="font-size:0.88rem;color:var(--b-muted);margin:0">
+          سامانه یکپارچه پیگیری و مدیریت درخواست‌های تعمیر پکیج و لوازم خانگی
+        </p>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap">
+        {% if current_date %}
+        <div class="admin-header-chip" style="font-size:0.85rem;padding:0.45rem 0.85rem">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.1rem;height:1.1rem"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span class="num">{{ current_date|jdate:"jd F jy" }}</span>
+        </div>
+        {% endif %}
+
+        {% url 'admin:requests_servicerequest_add' as add_request_url %}
+        {% if add_request_url %}
+        <a href="{{ add_request_url }}" class="object-tools" style="text-decoration:none;margin:0">
+          <span style="display:inline-flex;align-items:center;gap:0.4rem;height:38px;padding:0 1.15rem;border-radius:0.65rem;background:var(--b-brand);color:#fff;font-weight:700;font-size:0.88rem;box-shadow:var(--b-card-shadow)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.1rem;height:1.1rem"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>ثبت درخواست تلفنی</span>
+          </span>
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Status KPI Cards (Direct Filter Shortcuts) -->
+  <div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem">
+      <h3 style="font-size:0.98rem;font-weight:800;color:var(--b-ink);margin:0">وضعیت درخواست‌های جاری</h3>
+      {% url 'admin:requests_servicerequest_changelist' as requests_url %}
+      <a href="{{ requests_url }}" style="font-size:0.82rem;font-weight:700;color:var(--b-brand)">مشاهده همه فهرست ‹</a>
+    </div>
+
+    <div class="admin-kpi-grid">
+      {% for card in status_cards %}
+      <a href="{{ requests_url }}?status__exact={{ card.key }}" class="admin-kpi-card"
+        {% if card.key == 'new' %}style="--kpi-accent:#2563eb;--kpi-bg:rgba(37,99,235,0.1)"
+        {% elif card.key == 'contacted' %}style="--kpi-accent:#7c3aed;--kpi-bg:rgba(124,58,237,0.1)"
+        {% elif card.key == 'confirmed' %}style="--kpi-accent:#0891b2;--kpi-bg:rgba(8,145,178,0.1)"
+        {% elif card.key == 'in_progress' %}style="--kpi-accent:#d97706;--kpi-bg:rgba(217,119,6,0.1)"
+        {% elif card.key == 'completed' %}style="--kpi-accent:#16a34a;--kpi-bg:rgba(22,163,74,0.1)"
+        {% elif card.key == 'cancelled' %}style="--kpi-accent:#dc2626;--kpi-bg:rgba(220,38,38,0.1)"
+        {% endif %}>
+        <div class="admin-kpi-top">
+          <span class="admin-kpi-label">{{ card.label }}</span>
+          <div class="admin-kpi-icon-wrap">
+            {% if card.key == 'new' %}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+            {% elif card.key == 'contacted' %}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            {% elif card.key == 'in_progress' %}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            {% elif card.key == 'completed' %}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            {% else %}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+            {% endif %}
+          </div>
+        </div>
+        <p class="admin-kpi-val num">{{ card.count|fa_digits }}</p>
+        <div class="admin-kpi-footer">
+          <span>فیلتر بر اساس این وضعیت</span>
+          <span aria-hidden="true">‹</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Volume Summary Grid -->
+  <div class="admin-totals-grid">
+    <div class="admin-total-card">
+      <div class="val num">{{ total_requests|fa_digits }}</div>
+      <div class="lbl">مجموع کل درخواست‌ها</div>
+    </div>
+    <div class="admin-total-card">
+      <div class="val num" style="color:#059669">{{ today_requests|fa_digits }}</div>
+      <div class="lbl">درخواست‌های امروز</div>
+    </div>
+    <div class="admin-total-card">
+      <div class="val num" style="color:#2563eb">{{ week_requests|fa_digits }}</div>
+      <div class="lbl">۷ روز اخیر</div>
+    </div>
+    <div class="admin-total-card">
+      <div class="val num" style="color:#7c3aed">{{ month_requests|fa_digits }}</div>
+      <div class="lbl">۳۰ روز اخیر</div>
+    </div>
+  </div>
+
+  <!-- Analytics Row: 7-Day Chart & Top Brands -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1.25rem">
+    
+    <!-- 7-Day Activity Chart -->
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <div>
+          <h3 class="admin-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.2rem;height:1.2rem;color:var(--b-brand)"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span>درخواست‌های ثبت‌شده در ۷ روز اخیر</span>
+          </h3>
+          <p class="admin-card-subtitle">روند آماری ورودی درخواست‌های تعمیر</p>
+        </div>
+      </div>
+
+      {% if daily_counts %}
+      <div class="admin-chart-container">
+        {% for row in daily_counts %}
+        <div class="admin-chart-col">
+          <div class="admin-chart-bar-wrap">
+            <div class="admin-chart-bar" style="height:{% widthratio row.c max_daily 100 %}%">
+              <span class="admin-chart-tooltip num">{{ row.c|fa_digits }} درخواست</span>
+            </div>
+          </div>
+          <span class="admin-chart-label num">{{ row.created_at__date|jdate:"jd F" }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div style="text-align:center;padding:2.5rem 1rem;color:var(--b-muted)">
+        <p style="margin:0;font-size:0.88rem">در ۷ روز گذشته داده‌ای ثبت نشده است.</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Top Brands Distribution -->
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <div>
+          <h3 class="admin-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.2rem;height:1.2rem;color:var(--b-brand)"><path d="m15 5 6.3 6.3a2.4 2.4 0 0 1 0 3.4L17 19"/><path d="M9.586 5.586A2 2 0 0 0 8.172 5H3a1 1 0 0 0-1 1v5.172a2 2 0 0 0 .586 1.414L8.29 18.29a2.426 2.426 0 0 0 3.42 0l3.58-3.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="6.5" cy="9.5" r=".5" fill="currentColor"/></svg>
+            <span>بیشترین درخواست‌ها به تفکیک برند</span>
+          </h3>
+          <p class="admin-card-subtitle">توزیع آماری برندهای پرتقاضا</p>
+        </div>
+      </div>
+
+      {% if top_brands %}
+      <ul class="admin-brand-list">
+        {% for row in top_brands %}
+        <li class="admin-brand-item">
+          <div class="admin-brand-header">
+            <span style="color:var(--b-ink)">{{ row.name }}</span>
+            <span class="num" style="color:var(--b-brand);font-weight:700">{{ row.count|fa_digits }} درخواست</span>
+          </div>
+          <div class="admin-brand-bar-track">
+            <div class="admin-brand-bar-fill" style="width:{% widthratio row.count total_requests 100 %}%"></div>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <div style="text-align:center;padding:2.5rem 1rem;color:var(--b-muted)">
+        <p style="margin:0;font-size:0.88rem">هنوز داده‌ای برای برندها ثبت نشده است.</p>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- Quick Navigation Modules (SaaS Shortcuts) -->
+  {% if app_list %}
+  <div class="admin-card">
+    <div class="admin-card-header">
+      <h3 class="admin-card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.2rem;height:1.2rem;color:var(--b-brand)"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+        <span>دسترسی سریع به بخش‌های مدیریت</span>
+      </h3>
+    </div>
+    <div class="admin-quick-grid">
+      {% for app in app_list %}
+        {% for model in app.models %}
+          {% if model.admin_url %}
+          <a href="{{ model.admin_url }}" class="admin-quick-link">
+            <span>{{ model.name }}</span>
+            <span class="icon" aria-hidden="true">‹</span>
+          </a>
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Recent Requests Table -->
+  <div class="admin-card">
+    <div class="admin-card-header">
+      <div>
+        <h3 class="admin-card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.2rem;height:1.2rem;color:var(--b-brand)"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/></svg>
+          <span>آخرین درخواست‌های دریافتی</span>
+        </h3>
+        <p class="admin-card-subtitle">جدیدترین سفارش‌های ثبت‌شده توسط مشتریان</p>
+      </div>
+
+      {% url 'admin:requests_servicerequest_changelist' as req_list_url %}
+      {% if recent_requests %}
+      <a href="{{ req_list_url }}" class="admin-header-btn" style="height:34px;font-size:0.82rem">
+        <span>مشاهده همه</span>
+        <span aria-hidden="true">‹</span>
+      </a>
+      {% endif %}
+    </div>
+
+    {% if recent_requests %}
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>کد رهگیری</th>
+            <th>مشتری</th>
+            <th>شماره تماس</th>
+            <th>خدمت و برند</th>
+            <th>منطقه</th>
+            <th>وضعیت</th>
+            <th>عملیات</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for req in recent_requests %}
+          <tr>
+            <td>
+              <a href="{% url 'admin:requests_servicerequest_change' req.pk %}" class="num" style="font-weight:800;color:var(--b-brand)">
+                {{ req.tracking_code }}
+              </a>
+            </td>
+            <td style="font-weight:600">{{ req.customer_name }}</td>
+            <td class="num">{{ req.customer_phone|fa_digits }}</td>
+            <td>
+              <span>{{ req.service.name|default:"پکیج" }}</span>
+              <span style="color:var(--b-muted);font-size:0.8rem">({{ req.brand_display }})</span>
+            </td>
+            <td>{{ req.district|default:"تهران" }}</td>
+            <td>
+              <span class="admin-status-badge status-{{ req.status }}">
+                {{ req.status_label }}
+              </span>
+            </td>
+            <td>
+              <a href="{% url 'admin:requests_servicerequest_change' req.pk %}" class="admin-header-btn" style="height:32px;padding:0 0.65rem;font-size:0.8rem">
+                جزئیات
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:3rem 1rem;color:var(--b-muted)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:2.5rem;height:2.5rem;margin-bottom:0.5rem;color:var(--b-muted)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <p style="margin:0;font-size:0.92rem;font-weight:600">هنوز درخواستی در سامانه ثبت نشده است.</p>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,696 @@
+/* =====================================================================
+   Mobile layer for the Persian admin theme (اوستا سرویس)
+   Loaded ONLY under 768px via <link media="..."> in base_site.html —
+   desktop rendering is completely untouched.
+   Principles: 44px touch targets (WCAG), 16px inputs (prevents iOS zoom),
+   tables become tappable cards, filters collapse, sticky save bar.
+   ===================================================================== */
+@media (max-width: 767px) {
+
+  /* ---------- Foundations ---------- */
+  html { -webkit-text-size-adjust: 100%; }
+  body { overflow-x: hidden; }
+  #content { padding: 12px 10px 48px !important; }
+  div.breadcrumbs {
+    white-space: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+  div.breadcrumbs a { display: inline-block; padding: 8px 2px; }
+
+  /* ---------- Header: brand row + touch-friendly user row ---------- */
+  #header { padding: 8px 10px 5px !important; }
+  #branding { float: none !important; display: flex; align-items: center; gap: 6px; }
+  /* Compact chrome: smaller buttons (still ≥40px tap target), smaller brand
+     text and logo — so the brand never wraps to two lines on narrow phones. */
+  #site-name { font-size: 0.95rem !important; }
+  #site-name a { gap: 6px; }
+  #site-name a img { width: 24px; height: 24px; }
+  #mobile-admin-menu-btn { width: 40px !important; height: 40px !important; }
+  #mobile-admin-menu-btn svg { width: 20px !important; height: 20px !important; }
+  #admin-theme-toggle { width: 38px !important; height: 38px !important; }
+  #admin-theme-toggle svg { width: 18px !important; height: 18px !important; }
+  #user-tools {
+    float: none !important;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 8px;
+    padding: 4px 0 0;
+    font-size: 0.85rem;
+  }
+  #user-tools .admin-header-btn,
+  #user-tools .admin-header-chip {
+    height: 34px;
+    padding: 0 0.55rem;
+    font-size: 0.8rem;
+  }
+
+  /* ---------- Object tools (افزودن / مشاهده سایت) ---------- */
+  ul.object-tools {
+    display: flex;
+    gap: 8px;
+    margin: 0 0 12px;
+    padding: 0;
+    list-style: none;
+  }
+  ul.object-tools li { flex: 1 1 auto; }
+  .object-tools a:link, .object-tools a:visited {
+    display: flex;
+    height: 46px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.7rem;
+    font-size: 0.95rem;
+  }
+
+  /* ---------- Messages ---------- */
+  ul.messagelist { padding: 0 2px; }
+  ul.messagelist li { padding: 12px 14px; font-size: 0.95rem; }
+  .errornote { padding: 12px 14px; border-radius: 0.7rem; font-size: 0.95rem; }
+
+  /* ---------- Changelist: search toolbar ----------
+     Django's search form uses floats + negative margins that spill outside
+     the box in RTL; rebuild it as a clean two-row stack. */
+  #toolbar { padding: 0 0 10px; float: none; }
+  #changelist-search { display: block; }
+  #changelist-search > div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow: visible;
+  }
+  #changelist-search label {
+    position: static !important;
+    clip: auto;
+    width: auto !important;
+    height: auto !important;
+    display: none;              /* decorative magnifier icon — sr-only instead */
+  }
+  #changelist-search input#searchbar {
+    width: 100% !important;
+    height: 46px !important;
+    float: none !important;
+    margin: 0 !important;
+    font-size: 16px !important;   /* prevents focus-zoom on iOS */
+    padding: 0 12px;
+    border-radius: 0.7rem;
+    border: 1px solid var(--b-line);
+    background: #fff;
+    box-sizing: border-box;
+  }
+  #changelist-search input[type="submit"],
+  #changelist-search button[type="submit"] {
+    width: 100% !important;
+    height: 46px !important;
+    float: none !important;
+    margin: 0 !important;
+    border-radius: 0.7rem;
+    font-size: 0.95rem;
+    color: #fff !important;
+  }
+
+  /* ---------- Collapsible filter panel ---------- */
+  #filter-toggle-btn {
+    display: flex !important;      /* overrides the desktop display:none (same specificity, later cascade) */
+    width: 100%;
+    height: 46px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #fff;
+    border: 1px solid var(--b-line);
+    border-radius: 0.7rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--b-ink);
+    margin: 0 0 10px;
+    cursor: pointer;
+  }
+  #filter-toggle-btn:focus-visible { outline: 2px solid var(--b-brand); outline-offset: 2px; }
+  #changelist-filter {
+    position: static !important;
+    float: none !important;
+    width: auto !important;
+    background: #fff;
+    border: 1px solid var(--b-line);
+    border-radius: 0.9rem;
+    padding: 2px 14px 12px;
+    margin: 0 0 14px;
+    display: none;
+  }
+  #changelist-filter.open { display: block; }
+  #changelist-filter h2 { font-size: 1rem; padding: 12px 0 4px; margin: 0; }
+  #changelist-filter h3 { font-size: 0.9rem; margin: 4px 0; }
+  #changelist-filter h3 a { display: inline-block; padding: 8px 2px; }
+  #changelist-filter details { border: 0; border-top: 1px solid var(--b-line); padding: 4px 0; }
+  #changelist-filter summary {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  #changelist-filter ul { margin: 0 0 6px; }
+  #changelist-filter li a {
+    display: block;
+    padding: 10px 6px;
+    min-height: 44px;
+    border-radius: 0.5rem;
+  }
+  #changelist-filter li a:hover { background: #f0f6ff; }
+
+  /* ---------- Changelist: table → tappable cards ---------- */
+  #changelist .changelist-form-container { margin: 0 !important; }
+  #changelist.filtered #changelist-form-container,
+  .module.filtered { margin-right: 0 !important; }
+  #result_list.mobile-cards { display: block; border: 0; }
+  #result_list.mobile-cards thead { display: none; }   /* header text lives in each card row */
+  #result_list.mobile-cards tbody { display: block; }
+  #result_list.mobile-cards tr {
+    display: block;
+    background: #fff;
+    border: 1px solid var(--b-line);
+    border-radius: 0.9rem;
+    margin: 0 0 10px;
+    padding: 4px 14px 8px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+  }
+  /* Django renders the first data column as <th> inside tbody — style it
+     together with td so the card title + label rows work for both. */
+  #result_list.mobile-cards th {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    min-height: 44px;
+    font-size: 0.95rem;
+    text-align: left;
+  }
+  #result_list.mobile-cards th::before {
+    content: attr(data-label);
+    color: var(--b-muted);
+    font-weight: 600;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    text-align: right;
+  }
+  #result_list.mobile-cards th a { display: inline-block; padding: 8px 0; }
+  #result_list.mobile-cards td {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    border: 0;
+    padding: 8px 0;
+    min-height: 44px;
+    font-size: 0.95rem;
+    text-align: left;
+  }
+  #result_list.mobile-cards td::before {
+    content: attr(data-label);
+    color: var(--b-muted);
+    font-weight: 600;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    text-align: right;
+  }
+  #result_list.mobile-cards td[data-label=""]::before { display: none; }
+  #result_list.mobile-cards th.field-tracking_code {
+    font-weight: 800;
+    font-size: 1.02rem;
+    border-bottom: 1px dashed var(--b-line);
+    margin-bottom: 2px;
+  }
+  #result_list.mobile-cards th.field-tracking_code::before { content: none; }
+  #result_list.mobile-cards td a { display: inline-block; padding: 8px 0; }
+  #result_list.mobile-cards td.action-checkbox { min-height: 36px; }
+  #result_list.mobile-cards td.action-checkbox input { width: 24px; height: 24px; }
+
+  /* ---------- Bulk actions bar ---------- */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: stretch;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid var(--b-line);
+    border-radius: 0.9rem;
+    margin: 0 0 12px;
+  }
+  /* The «اقدام:» text is hidden via font-size:0 in base_site (the select
+     lives INSIDE the label, so the label element itself must stay visible). */
+  .actions select {
+    flex: 1 1 100%;
+    height: 46px;
+    font-size: 16px !important;
+    border: 1px solid var(--b-line);
+    border-radius: 0.6rem;
+    background: #fff;
+    padding: 0 10px;
+  }
+  .actions button.button {
+    flex: 1 1 100%;
+    height: 46px;
+    border-radius: 0.6rem;
+    font-size: 0.95rem;
+    background: var(--b-brand) !important;
+    color: #fff !important;
+    border: 0;
+  }
+  .actions .all { font-size: 0.85rem; }
+
+  /* ---------- Pagination ---------- */
+  .paginator {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 0 4px;
+    font-size: 1rem;
+  }
+  .paginator a, .paginator .this-page {
+    padding: 10px 13px;
+    min-width: 42px;
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.6rem;
+  }
+  .paginator a { border: 1px solid var(--b-line); background: #fff; }
+  .paginator .this-page { background: var(--b-brand); color: #fff; font-weight: 700; }
+
+  /* ---------- Forms: change / add pages ---------- */
+  .module { margin: 0 0 14px !important; }
+  .module h2, .module caption { padding: 12px 14px; font-size: 1rem; }
+  fieldset.module { padding: 12px 12px 14px !important; }
+  .form-row { padding: 6px 0; }
+  .form-row label, .form-row .flex-container label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 6px;
+    padding-top: 0;
+    width: auto;
+    float: none;
+  }
+  /* 16px is the magic number: iOS Safari zooms into any smaller focused input */
+  input[type="text"], input[type="password"], input[type="email"],
+  input[type="number"], input[type="url"], input[type="tel"],
+  input[type="date"], input[type="datetime-local"], input[type="search"],
+  textarea, select, .vTextField, .vURLField, .vIntegerField {
+    width: 100% !important;
+    min-height: 46px !important;
+    height: 46px;
+    font-size: 16px !important;
+    padding: 8px 12px;
+    border-radius: 0.7rem;
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    box-sizing: border-box;
+  }
+  textarea { min-height: 120px !important; height: auto !important; }
+  input[type="checkbox"], input[type="radio"] { width: 22px; height: 22px; accent-color: var(--b-brand); }
+  .help, .form-row .help { font-size: 0.8rem; color: var(--b-muted); padding-top: 4px; }
+  .related-widget-wrapper { display: flex; align-items: center; gap: 6px; }
+  .related-widget-wrapper select { flex: 1; }
+  .related-widget-wrapper-link { width: 38px; height: 38px; flex-shrink: 0; }
+
+  /* password field keeps room for the eye button (unchanged from theme) */
+  input[type="password"] { padding-left: 2.4rem !important; }
+
+  /* ---------- Sticky, full-width save/delete bar ---------- */
+  .submit-row {
+    position: sticky;
+    bottom: 8px;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid var(--b-line);
+    border-radius: 0.9rem;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, 0.10);
+    margin: 16px 0 0;
+  }
+  .submit-row input, .submit-row button, .submit-row a.button {
+    width: 100%;
+    min-height: 48px;
+    font-size: 1rem;
+    border-radius: 0.7rem;
+  }
+  .submit-row .deletelink-box { order: 3; margin: 0; width: 100%; }
+  .submit-row a.deletelink {
+    width: 100%;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.7rem;
+  }
+
+  /* ---------- Inlines: tabular ones scroll, stacked ones flow ---------- */
+  .inline-group { margin: 0 0 16px; }
+  .inline-group h2 { padding: 12px 14px; font-size: 1rem; }
+  .inline-group .tabular { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .inline-group .tabular table { min-width: 620px; }
+  .inline-group .tabular th, .inline-group .tabular td { padding: 8px 10px; }
+
+  /* ---------- Dashboard: force single column (inline grid styles) ---------- */
+  #content div[style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+  .b-card { padding: 14px !important; }
+  .b-card table { min-width: 540px; }   /* scrolls horizontally inside its wrapper */
+  .b-stat { font-size: 1.5rem; }
+
+  /* ---------- Login page ---------- */
+  body.login #content { max-width: 100%; padding: 16px 12px !important; }
+  body.login #content form { width: auto; max-width: 420px; margin: 0 auto; }
+
+  /* ---------- Calendar / clock picker popups ---------- */
+  .calendarbox, .clockbox { z-index: 60; width: 95vw !important; max-width: 340px; }
+
+}
+
+/* ===== Admin dark/light theme (separate from the public site's key) =====
+   Toggle stores 'admin-dark' / 'admin-light' in localStorage. Django's own
+   three-state system (dark_mode.css + shared localStorage['theme']) is
+   pinned off — our surfaces are hand-tuned for the brand, so we drive the
+   same CSS variables Django already uses, under html[data-admin-theme]. */
+html[data-admin-theme="dark"] {
+  --b-brand: #3b82f6;
+  --b-ink: #e2e8f0;
+  --b-muted: #94a3b8;
+  --b-line: #1e293b;
+  --b-bg: #0b1220;
+  --b-surface: #101a2e;
+  --b-surface-2: #0f172a;
+  --b-surface-3: #1a2540;
+  /* Django's own variables (so its widgets follow too) */
+  --primary: #1d4ed8;
+  --primary-fg: #fff;
+  --link-fg: #93c5fd;
+  --link-hover-color: #bfdbfe;
+  --link-selected-fg: #60a5fa;
+  --body-fg: #e2e8f0;
+  --body-quiet-color: #94a3b8;
+  --body-medium-color: #cbd5e1;
+  --body-loud-color: #f1f5f9;
+  --body-bg: #0b1220;
+  --darkened-bg: #101a2e;
+  --hairline-color: #1e293b;
+  --border-color: #1e293b;
+  --breadcrumbs-bg: #0f172a;
+  --breadcrumbs-fg: #94a3b8;
+  --breadcrumbs-link-fg: #cbd5e1;
+  --button-bg: #1d4ed8;
+  --button-fg: #fff;
+  --button-hover-bg: #1e40af;
+  --error-fg: #f87171;
+  --message-success-bg: #052e1b;
+  --message-warning-bg: #291a05;
+  --message-error-bg: #2f0a0a;
+  --selected-bg: #16213a;
+  --selected-row: #16213a;
+  color-scheme: dark;
+}
+html[data-admin-theme="dark"] body { background: var(--b-bg) !important; color: var(--b-ink) !important; }
+html[data-admin-theme="dark"] .module { background: var(--b-surface) !important; border-color: var(--b-line) !important; box-shadow: 0 1px 2px rgba(0,0,0,.35) !important; }
+html[data-admin-theme="dark"] .module h2, html[data-admin-theme="dark"] .module caption { background: var(--b-surface-3) !important; color: #bfdbfe !important; }
+html[data-admin-theme="dark"] #changelist table tbody tr { background: var(--b-surface) !important; }
+html[data-admin-theme="dark"] #changelist table tbody tr:hover { background: var(--b-surface-3) !important; }
+html[data-admin-theme="dark"] #changelist table tbody th,
+html[data-admin-theme="dark"] #changelist table tbody td { background: var(--b-surface) !important; color: var(--b-ink) !important; }
+html[data-admin-theme="dark"] #changelist table tbody a { color: #93c5fd !important; }
+html[data-admin-theme="dark"] .actions, html[data-admin-theme="dark"] #toolbar,
+html[data-admin-theme="dark"] #changelist-search, html[data-admin-theme="dark"] .paginator,
+html[data-admin-theme="dark"] #changelist-filter { background: var(--b-surface-2) !important; color: var(--b-ink) !important; border-color: var(--b-line) !important; }
+html[data-admin-theme="dark"] .actions select, html[data-admin-theme="dark"] #changelist-search input,
+html[data-admin-theme="dark"] .paginator a { background: var(--b-surface-3) !important; color: var(--b-ink) !important; border-color: var(--b-line) !important; }
+html[data-admin-theme="dark"] .paginator .this-page { background: var(--primary) !important; color: #fff !important; }
+html[data-admin-theme="dark"] #changelist-filter li a { color: var(--b-muted) !important; }
+html[data-admin-theme="dark"] #changelist-filter li a:hover { background: var(--b-surface-3) !important; color: var(--b-ink) !important; }
+html[data-admin-theme="dark"] #changelist-filter h3 { color: var(--b-ink) !important; border-color: var(--b-line) !important; }
+html[data-admin-theme="dark"] #changelist-filter li.selected a { color: #93c5fd !important; }
+html[data-admin-theme="dark"] input, html[data-admin-theme="dark"] select, html[data-admin-theme="dark"] textarea,
+html[data-admin-theme="dark"] .vTextField { background: var(--b-surface-3) !important; color: var(--b-ink) !important; border-color: var(--b-line) !important; }
+html[data-admin-theme="dark"] input[type="checkbox"] { background: transparent !important; }
+html[data-admin-theme="dark"] fieldset.module h2, html[data-admin-theme="dark"] .form-row label { color: var(--b-ink) !important; }
+html[data-admin-theme="dark"] .form-row { border-color: var(--b-line) !important; }
+html[data-admin-theme="dark"] .submit-row { background: var(--b-surface-2) !important; border-color: var(--b-line) !important; }
+html[data-admin-theme="dark"] .submit-row input, html[data-admin-theme="dark"] .submit-row a.button,
+html[data-admin-theme="dark"] button.default, html[data-admin-theme="dark"] a.button.default { background: var(--primary) !important; border-color: var(--primary) !important; color: #fff !important; }
+html[data-admin-theme="dark"] .object-tools a:link, html[data-admin-theme="dark"] .object-tools a:visited { background: var(--b-surface-3) !important; color: var(--b-ink) !important; border-color: var(--b-line) !important; }
+html[data-admin-theme="dark"] ul.messagelist li { background: var(--b-surface-2) !important; color: var(--b-ink) !important; border-color: var(--b-line) !important; }
+html[data-admin-theme="dark"] ul.messagelist li.success { background: var(--message-success-bg) !important; color: #86efac !important; }
+html[data-admin-theme="dark"] ul.messagelist li.warning { background: var(--message-warning-bg) !important; color: #fcd34d !important; }
+html[data-admin-theme="dark"] ul.messagelist li.error { background: var(--message-error-bg) !important; color: #fca5a5 !important; }
+html[data-admin-theme="dark"] #header { background: var(--b-surface) !important; color: var(--b-ink) !important; border-bottom: 1px solid var(--b-line) !important; }
+html[data-admin-theme="dark"] .breadcrumbs { background: var(--b-surface-2) !important; color: var(--b-muted) !important; }
+html[data-admin-theme="dark"] .breadcrumbs a { color: #93c5fd !important; }
+html[data-admin-theme="dark"] #nav-sidebar { background: #0b1220 !important; }
+html[data-admin-theme="dark"] .b-card { background: var(--b-surface) !important; color: var(--b-ink) !important; }
+html[data-admin-theme="dark"] .b-card a { color: #93c5fd !important; }
+html[data-admin-theme="dark"] .b-card table { background: transparent !important; }
+html[data-admin-theme="dark"] .b-card table th, html[data-admin-theme="dark"] .b-card table td { background: transparent !important; color: var(--b-ink) !important; border-color: var(--b-line) !important; }
+html[data-admin-theme="dark"] .b-stat { color: #93c5fd !important; }
+/* dashboard shortcut cards + inline-styled surfaces */
+html[data-admin-theme="dark"] #content a[href*="changelist"],
+html[data-admin-theme="dark"] #content div[style*="background"] { color: var(--b-ink); }
+html[data-admin-theme="dark"] #content div[style*="background: #fff"],
+html[data-admin-theme="dark"] #content div[style*="background:#fff"],
+html[data-admin-theme="dark"] #content div[style*="background: white"] { background: var(--b-surface) !important; }
+html[data-admin-theme="dark"] #content div[style*="border"] { border-color: var(--b-line); }
+html[data-admin-theme="dark"] h1, html[data-admin-theme="dark"] h2, html[data-admin-theme="dark"] h3 { color: var(--b-ink) !important; }
+html[data-admin-theme="dark"] p, html[data-admin-theme="dark"] td, html[data-admin-theme="dark"] th, html[data-admin-theme="dark"] li { color: var(--b-ink); }
+html[data-admin-theme="dark"] .help, html[data-admin-theme="dark"] .help-text { color: var(--b-muted) !important; }
+html[data-admin-theme="dark"] .calendarbox, html[data-admin-theme="dark"] .clockbox { background: var(--b-surface) !important; color: var(--b-ink) !important; }
+html[data-admin-theme="dark"] .calendarbox caption, html[data-admin-theme="dark"] .clockbox h2 { background: var(--b-surface-3) !important; color: var(--b-ink) !important; }
+
+/* Header chrome — branding is an RTL flex row: ☰ menu first (right-most),
+   brand next, theme toggle last (left-most). The brand's auto margin keeps
+   the theme button pushed toward the far (left) end. */
+#branding {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+#branding #site-name {
+  margin-inline-end: auto;  /* pushes the theme button to the left end */
+  min-width: 0;             /* allow the brand to shrink instead of overflowing */
+}
+/* Keep the brand on ONE line: shrink-to-fit text with ellipsis instead of a
+   two-line wrap on narrow phones. */
+#branding #site-name a {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  min-width: 0;
+  max-width: 100%;
+  white-space: nowrap;
+}
+#branding #site-name a img { flex-shrink: 0; }
+#branding #site-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* theme toggle button (header) — visible in both themes */
+#admin-theme-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px; flex-shrink: 0;
+  background: var(--b-surface-2); border: 1px solid var(--b-line);
+  border-radius: .6rem; cursor: pointer; padding: 0;
+  color: var(--b-ink);
+  transition: all 0.15s ease;
+}
+#admin-theme-toggle svg { width: 1.15rem; height: 1.15rem; color: var(--b-ink); display: block; }
+#admin-theme-toggle:focus-visible { outline: 2px solid var(--b-brand); outline-offset: 2px; }
+html[data-admin-theme="dark"] #admin-theme-toggle { background: var(--b-surface-2); border-color: var(--b-line); color: var(--b-ink); }
+/* sun/moon swap: light shows moon ("go dark"), dark shows sun ("go light") */
+#admin-theme-toggle .icon-sun { display: none; }
+html[data-admin-theme="dark"] #admin-theme-toggle .icon-moon { display: none; }
+html[data-admin-theme="dark"] #admin-theme-toggle .icon-sun { display: block; color: #f59e0b; }
+
+/* ===== Navigation drawer — the SAME drawer now serves mobile AND desktop.
+   These rules live at TOP LEVEL (outside the mobile media query) on purpose:
+   the ☰ button in the header opens this drawer at every viewport width,
+   replacing Django's stock edge-strip sidebar. ===== */
+#header { position: sticky; top: 0; z-index: 50; }
+
+/* Django's own edge-strip toggle (»/« beside the sidebar) is replaced by the
+   header ☰ button everywhere — hide it at all widths. */
+.toggle-nav-sidebar { display: none !important; }
+
+/* The drawer overlays content (position: fixed), so Django's desktop layout
+   that reserves sidebar space must be fully neutralized at all widths:
+   stock CSS shrinks #content by 23px (edge strip) and by 299px when Django's
+   JS adds .main.shifted (it does on load from localStorage, default 'true').
+   Content always takes the full width now. */
+#nav-sidebar + .content,
+.main > #nav-sidebar + .content,
+.main.shifted > #nav-sidebar + .content {
+  max-width: 100% !important;
+}
+
+/* ---------- Drawer chrome (all widths) ---------- */
+#mobile-admin-menu-btn {
+    display: inline-flex !important;   /* shown at all widths */
+    align-items: center;
+    justify-content: center;
+    width: 38px; height: 38px;
+    flex-shrink: 0;
+    background: var(--b-surface-2);
+    border: 1px solid var(--b-line);
+    border-radius: 0.6rem;
+    cursor: pointer;
+    padding: 0;
+    color: var(--b-ink);
+    transition: all 0.15s ease;
+  }
+  #mobile-admin-menu-btn svg { width: 1.25rem; height: 1.25rem; color: var(--b-ink); display: block; }
+  #mobile-admin-menu-btn:focus-visible { outline: 2px solid var(--b-brand); outline-offset: 2px; }
+
+  /* Full-height drawer sliding from the right (RTL) — Django itself sets
+     display:none on #nav-sidebar below 767px; we restore it as a drawer. */
+  #nav-sidebar,
+  [dir="rtl"] #nav-sidebar {
+    display: block !important;
+    position: fixed !important;
+    inset: 0 0 0 auto !important;
+    left: auto !important;
+    right: 0 !important;
+    height: 100dvh;
+    /* mobile: wide swipe-friendly drawer; desktop: fixed 280px panel */
+    width: min(84vw, 320px) !important;
+    flex: none !important;
+    margin: 0 !important;
+    transform: translateX(100%);
+    transition: transform 0.25s ease-out;
+    background: #0f172a;
+    border: 0 !important;
+    z-index: 60;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 0 24px;
+  }
+  @media (min-width: 768px) {
+    #nav-sidebar,
+    [dir="rtl"] #nav-sidebar { width: 280px !important; }
+  }
+  /* Django's nav_sidebar.css hides the sidebar with
+     `.main > #nav-sidebar { visibility: hidden }` (specificity 0,1,1 — it
+     beats a plain #nav-sidebar rule) and only un-hides it for
+     `.main.shifted` (its own desktop toggle). Without this override the
+     drawer has correct geometry but is INVISIBLE — the “tap opens nothing”
+     bug. Pin it visible in every state of .main. */
+  .main > #nav-sidebar,
+  [dir="rtl"] .main > #nav-sidebar,
+  .main.shifted > #nav-sidebar {
+    visibility: visible !important;
+  }
+  #nav-sidebar.open { transform: translateX(0); }
+  #nav-sidebar .module { background: transparent; border: 0; border-radius: 0; box-shadow: none; margin: 0 0 6px; }
+  #nav-sidebar .module caption,
+  #nav-sidebar .module h2,
+  #nav-sidebar .module caption a,
+  [dir="rtl"] #nav-sidebar .module caption a {
+    background: transparent !important;
+    color: #94a3b8 !important;
+    font-size: 0.78rem !important;
+    letter-spacing: 0.3px;
+    padding: 16px 16px 6px;
+    text-align: right;
+    display: block;
+    white-space: nowrap;
+  }
+  #nav-sidebar .module th, #nav-sidebar .module td { background: transparent; border: 0; padding: 0; }
+  /* Each model row = [name | + add] on one line; every table chrome
+     transparent so the drawer's dark surface shows through. */
+  #nav-sidebar .module table,
+  #nav-sidebar .module tbody { display: block; width: 100%; background: transparent; }
+  #nav-sidebar .module tr {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    background: transparent;
+  }
+  #nav-sidebar .module th { flex: 1; background: transparent !important; min-width: 0; }
+  #nav-sidebar .module th a { display: block; min-height: 44px; padding: 10px 16px; }
+  #nav-sidebar .module td { flex-shrink: 0; background: transparent !important; }
+  /* long model names must not wrap into two lines inside their row */
+  #nav-sidebar .module th a,
+  #nav-sidebar .module td a { white-space: nowrap; }
+  #nav-sidebar .module th a { overflow: hidden; text-overflow: ellipsis; }
+  #nav-sidebar .module { text-align: right; }
+  #nav-sidebar .module caption,
+  #nav-sidebar .module h2 { text-align: right; }
+  #nav-sidebar .module td a.addlink {
+    padding: 8px 12px;
+    min-height: 40px;
+    border-radius: 0.6rem;
+    background: #1e293b;
+    justify-content: center;
+  }
+  #nav-sidebar .module td a.addlink::after { content: none; }
+  #nav-sidebar .module a {
+    color: #e2e8f0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 48px;
+    padding: 10px 16px;
+    font-size: 0.98rem;
+  }
+  #nav-sidebar .module a:hover { background: #1e293b; color: #fff !important; }
+  #nav-sidebar .module tr.current-model a { background: #1d4ed8; color: #fff !important; }
+  #nav-sidebar .addlink::after { content: "+"; font-size: 1.15rem; font-weight: 700; color: #93c5fd; }
+  #nav-sidebar .changelink::after, #nav-sidebar .viewlink::after { content: "9"; font-size: 1.2rem; color: #64748b; }
+  #nav-sidebar .addlink, #nav-sidebar .changelink, #nav-sidebar .viewlink { width: 100%; box-sizing: border-box; }
+  #nav-filter {
+    background: #1e293b !important;
+    border: 1px solid #334155 !important;
+    color: #e2e8f0 !important;
+    border-radius: 0.7rem;
+    height: 46px;
+    font-size: 16px !important;
+    margin: 12px 14px 4px;
+    width: calc(100% - 28px) !important;
+    padding: 0 12px;
+  }
+  #nav-filter::placeholder { color: #64748b; }
+
+  #drawer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px 8px;
+    border-bottom: 1px solid #1e293b;
+  }
+  #drawer-head span { color: #fff; font-weight: 800; font-size: 0.95rem; }
+  #drawer-close {
+    width: 42px; height: 42px;
+    display: flex; align-items: center; justify-content: center;
+    background: transparent; border: 1px solid #334155; border-radius: 0.7rem;
+    color: #cbd5e1; cursor: pointer;
+  }
+  #drawer-close svg { width: 20px; height: 20px; }
+
+  #drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.55);
+    backdrop-filter: blur(2px);
+    z-index: 55;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease-out;
+  }
+  #drawer-backdrop.show { opacity: 1; pointer-events: auto; }

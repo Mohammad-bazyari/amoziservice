@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% load static fa %}
+{% block title %}{{ brand.service.name }} {{ brand.name }} در {{ site_settings.city }} | {{ site_settings.business_name }}{% endblock %}
+{% block meta_description %}{{ brand.meta_description|default:brand.short_description }}{% endblock %}
+{% block meta_keywords %}تعمیر پکیج {{ brand.name }}، {{ brand.name }} {{ site_settings.city }}، {{ brand.service.name }} {{ brand.name }}{% endblock %}
+
+{% block og_image %}
+<meta property="og:title" content="{{ brand.name }} — {{ site_settings.business_name }}">
+{% if brand.og_image %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ brand.og_image.url }}">{% endif %}
+{% endblock %}
+
+{% block json_ld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "{{ brand.service.name|escapejs }} {{ brand.name|escapejs }}",
+  "areaServed": "{{ site_settings.province|escapejs }}",
+  "provider": {
+    "@type": "LocalBusiness",
+    "@id": "{{ request.scheme }}://{{ request.get_host }}/#business",
+    "name": "{{ site_settings.business_name|escapejs }}",
+    "telephone": "{{ site_settings.business_phone|escapejs }}"
+  },
+  "url": "{{ request.build_absolute_uri }}",
+  "description": "{{ brand.meta_description|default:brand.short_description|escapejs }}"
+}
+</script>
+{% if related_articles %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "مقالات مرتبط با {{ brand.name|escapejs }}",
+  "itemListElement": [
+    {% for a in related_articles %}
+    {
+      "@type": "ListItem",
+      "position": {{ forloop.counter }},
+      "name": "{{ a.title|escapejs }}",
+      "url": "{{ request.scheme }}://{{ request.get_host }}{{ a.get_absolute_url }}"
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<section class="border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+  <div class="mx-auto max-w-6xl px-4 py-12 md:py-16">
+    {% breadcrumbs "صفحه اصلی|/;برندها|/brands/;"|add:brand.name|add:"|"|add:brand.get_absolute_url %}
+    <h1 class="mt-4 text-3xl font-extrabold text-slate-900 dark:text-white md:text-4xl">{{ brand.service.name }} {{ brand.name }} در {{ site_settings.city }}</h1>
+    <p class="mt-3 max-w-3xl leading-8 text-slate-600 dark:text-slate-300">{{ brand.short_description }}</p>
+    <div class="mt-7 flex flex-wrap gap-3">
+      <a href="{% url 'requests:start' %}?service={{ brand.service.pk }}" class="flex items-center gap-2 rounded-xl bg-cta-500 px-5 py-3 text-sm font-extrabold text-slate-900 shadow-card transition hover:bg-cta-600 hover:text-white">
+        {% lucide "clipboard-pen" "w-4 h-4" %} ثبت درخواست {{ brand.service.name }} {{ brand.name }}
+      </a>
+      <a href="{% tel_href site_settings.business_phone %}" class="num flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-5 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 transition hover:border-brand-300 hover:text-brand-700 dark:hover:border-brand-500 dark:hover:text-brand-300">
+        {% lucide "phone" "w-4 h-4" %} {{ site_settings.business_phone|fa_digits }}
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="mx-auto max-w-6xl px-4 py-12">
+  <div class="grid gap-10 lg:grid-cols-3">
+    <article class="lg:col-span-2">
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white">نکات {{ brand.service.name }} {{ brand.name }}</h2>
+      {% for paragraph in brand.content_lines %}
+        <p class="mt-4 leading-9 text-slate-700 dark:text-slate-200">{{ paragraph }}</p>
+      {% empty %}
+        <p class="mt-4 leading-9 text-slate-700 dark:text-slate-200">{{ brand.content }}</p>
+      {% endfor %}
+
+      <div class="mt-10 flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-sm leading-7 text-emerald-900">
+        {% lucide "badge-check" "mt-0.5 h-5 w-5 shrink-0 text-emerald-600" %}
+        <span>
+          <strong class="font-bold">نمایندگی رسمی:</strong>
+          ما نمایندگی رسمی برند {{ brand.name }} هستیم؛ تعمیر و سرویس با قطعات اورجینال و دانش فنی به‌روز.
+        </span>
+      </div>
+    </article>
+
+    <aside class="lg:col-span-1">
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 shadow-card lg:sticky lg:top-24">
+        <h2 class="font-bold text-slate-900 dark:text-white">سایر برندهای {{ brand.service.name }}</h2>
+        <ul class="mt-4 grid gap-2 text-sm">
+          {% for b in brand_list %}
+          <li><a class="text-slate-600 dark:text-slate-300 transition hover:text-brand-700 dark:hover:text-brand-300" href="{{ b.get_absolute_url }}">{{ b.name }}</a></li>
+          {% endfor %}
+        </ul>
+        <a href="{% url 'requests:start' %}?service={{ brand.service.pk }}" class="mt-6 flex items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 py-3 text-sm font-extrabold text-white transition hover:bg-brand-700">
+          {% lucide "clipboard-pen" "w-4 h-4" %} شروع درخواست {{ brand.service.name }}
+        </a>
+        {% if related_articles %}
+        <div class="mt-6 border-t border-slate-100 dark:border-slate-800 pt-5">
+          <h2 class="text-sm font-bold text-slate-900 dark:text-white">مقالات {{ brand.service.name }}</h2>
+          <ul class="mt-3 grid gap-2.5 text-sm">
+            {% for article in related_articles %}
+            <li>
+              <a href="{{ article.get_absolute_url }}" class="group flex items-start gap-2 leading-6 text-slate-600 dark:text-slate-300 transition hover:text-brand-700 dark:hover:text-brand-300">
+                {% lucide "arrow-left" "mt-1 h-3.5 w-3.5 shrink-0 text-brand-500" %}
+                {{ article.title }}
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+      </div>
+    </aside>
+  </div>
+</section>
+
+{% include "partials/cta_band.html" %}
+{% endblock %}

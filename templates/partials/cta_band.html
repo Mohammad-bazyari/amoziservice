@@ -1,0 +1,28 @@
+{% load fa %}
+{% comment %}
+  Service-centric CTA band: promotes the current page's service when the page
+  provides one (band_service), otherwise the business's primary service.
+{% endcomment %}
+{% with svc=band_service|default:default_service %}
+<section class="mx-auto max-w-6xl px-4 pb-16">
+  <div class="relative overflow-hidden texture-grain rounded-3xl bg-gradient-to-l from-brand-700 to-brand-600 dark:from-brand-900 dark:to-brand-800 px-6 py-12 text-center text-white shadow-lg md:px-12">
+    <div class="pointer-events-none absolute inset-0 bg-dot-grid opacity-60" aria-hidden="true"></div>
+    <h2 class="text-2xl font-bold md:text-3xl">{% if svc %}به {{ svc.name }} نیاز دارید؟{% else %}دستگاه‌تان نیاز به تعمیر دارد؟{% endif %}</h2>
+    <p class="mx-auto mt-3 max-w-xl leading-8 text-brand-100 dark:text-brand-200">
+      همین حالا درخواست خود را ثبت کنید تا تعمیرکار برای هماهنگی با شما تماس بگیرد.
+    </p>
+    <div class="mt-7 flex flex-wrap items-center justify-center gap-3">
+      <a href="{% url 'requests:start' %}{% if svc %}?service={{ svc.pk }}{% endif %}"
+         class="flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-base font-extrabold text-brand-700 shadow-lg transition hover:bg-brand-50">
+        {% lucide "clipboard-pen" "w-5 h-5" %}
+        ثبت درخواست {{ svc.name|default:"تعمیر" }}
+      </a>
+      <a href="{% tel_href site_settings.business_phone %}"
+         class="num flex items-center gap-2 rounded-xl border border-white/30 px-6 py-3.5 text-base font-bold text-white transition hover:bg-white/10">
+        {% lucide "phone" "w-5 h-5" %}
+        {{ site_settings.business_phone|fa_digits }}
+      </a>
+    </div>
+  </div>
+</section>
+{% endwith %}

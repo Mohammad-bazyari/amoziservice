@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load static fa %}
+{% block title %}{{ article.seo_title|default:article.title }} | {{ site_settings.business_name }}{% endblock %}
+{% block meta_description %}{{ article.meta_description|default:article.summary }}{% endblock %}
+{% block meta_keywords %}{{ article.title }}{% if article.service %}، {{ article.service.name }}، عیب‌یابی {{ article.service.name }}{% endif %}{% endblock %}
+
+{% block og_image %}{% if article.image %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ article.image.url }}">{% endif %}{% endblock %}
+
+{% block json_ld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "{{ article.title|escapejs }}",
+  "description": "{{ article.meta_description|default:article.summary|escapejs }}",
+  "url": "{{ request.build_absolute_uri }}",
+  "inLanguage": "fa-IR",
+  "author": {"@type": "Organization", "name": "{{ site_settings.business_name|escapejs }}", "url": "{{ request.scheme }}://{{ request.get_host }}/"},
+  "publisher": {
+    "@type": "Organization",
+    "name": "{{ site_settings.business_name|escapejs }}",
+    "logo": {"@type": "ImageObject", "url": "{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo.svg' %}"}
+  },
+  "datePublished": "{{ article.created_at|date:'Y-m-d' }}",
+  "dateModified": "{{ article.updated_at|date:'Y-m-d' }}",
+  "mainEntityOfPage": {"@type": "WebPage", "@id": "{{ request.build_absolute_uri }}"},
+  {% if article.image %}"image": "{{ request.scheme }}://{{ request.get_host }}{{ article.image.url }}",{% endif %}
+  {% if article.service %}"articleSection": "{{ article.service.name|escapejs }}",{% endif %}
+  "speakable": {"@type": "SpeakableSpecification", "cssSelector": ["h1", ".summary", ".prose-fa"]}
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<section class="border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+  <div class="mx-auto max-w-6xl px-4 py-12 md:py-16">
+    {% if article.service %}
+    {% breadcrumbs "صفحه اصلی|/;مقالات|/articles/;"|add:article.title %}
+    {% else %}
+    {% breadcrumbs "صفحه اصلی|/;مقالات|/articles/;"|add:article.title %}
+    {% endif %}
+    <div class="mt-4 max-w-3xl">
+      {% if article.service %}
+      <span class="mb-3 inline-flex items-center gap-1 rounded-full bg-brand-50 dark:bg-brand-950/60 px-3 py-1 text-xs font-bold text-brand-700 dark:text-brand-300">
+        {% lucide article.service.icon "w-3.5 h-3.5" %}{{ article.service.name }}
+      </span>
+      {% endif %}
+      <h1 class="text-3xl font-extrabold leading-snug text-slate-900 dark:text-white md:text-4xl">{{ article.title }}</h1>
+      {% if article.summary %}
+      <p class="mt-3 text-lg leading-8 text-slate-600 dark:text-slate-300">{{ article.summary }}</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<section class="mx-auto max-w-6xl px-4 py-12">
+  <div class="grid gap-10 lg:grid-cols-3">
+    <article class="prose-fa lg:col-span-2">
+      {% if article.image %}
+      <img src="{{ article.image.url }}" alt="{{ article.title }}" width="1200" height="675" class="mb-8 w-full rounded-2xl shadow-card">
+      {% endif %}
+      {% for line in article.content_lines %}
+        {% if line|slice:":2" == "##" %}
+          <h2 class="mt-8 text-xl font-bold text-slate-900 dark:text-white">{{ line|slice:"2:"|cut:"#" }}</h2>
+        {% else %}
+          <p class="mt-4 leading-9 text-slate-700 dark:text-slate-200">{{ line }}</p>
+        {% endif %}
+      {% endfor %}
+
+      {% if article.service %}
+      <div class="mt-10 rounded-2xl border border-cta-200 bg-cta-50 p-6 dark:border-cta-700/60 dark:bg-cta-700/10 text-center">
+        <h2 class="text-lg font-bold text-slate-900 dark:text-white">{{ article.service.name }} لازم دارید؟</h2>
+        <p class="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">همین حالا درخواست خود را ثبت کنید؛ کارشناس ما در سریع‌ترین زمان تماس می‌گیرد.</p>
+        <a href="{% url 'requests:start' %}?service={{ article.service.pk }}"
+           class="mt-4 inline-flex items-center gap-2 rounded-xl bg-cta-500 px-6 py-3 text-sm font-extrabold text-slate-900 shadow-card transition hover:bg-cta-600 hover:text-white">
+          {% lucide "clipboard-pen" "w-4 h-4" %} ثبت درخواست {{ article.service.name }}
+        </a>
+      </div>
+      {% endif %}
+    </article>
+
+    <aside class="lg:col-span-1">
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 shadow-card lg:sticky lg:top-24">
+        <h2 class="font-bold text-slate-900 dark:text-white">مقالات دیگر</h2>
+        <ul class="mt-4 grid gap-3 text-sm">
+          {% for more in more_articles %}
+          <li>
+            <a href="{{ more.get_absolute_url }}" class="group flex items-start gap-2.5 text-slate-600 dark:text-slate-300 transition hover:text-brand-700 dark:hover:text-brand-300">
+              {% lucide "arrow-left" "w-4 h-4 mt-1 shrink-0 text-brand-500" %}
+              <span class="font-medium leading-6">{{ more.title }}</span>
+            </a>
+          </li>
+          {% empty %}
+          <li class="text-slate-500 dark:text-slate-400">فعلاً مقاله دیگری نیست.</li>
+          {% endfor %}
+        </ul>
+        <a href="{% url 'content:articles' %}" class="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-brand-600 dark:text-brand-400 transition hover:gap-2.5 hover:text-brand-700 dark:hover:text-brand-300">
+          همه مقالات {% lucide "arrow-left" "w-4 h-4" %}
+        </a>
+      </div>
+    </aside>
+  </div>
+</section>
+
+{% include "partials/cta_band.html" %}
+{% endblock %}

@@ -1,0 +1,17 @@
+{# پیام‌های django.contrib.messages — نمایش یکدست در همه‌ی صفحه‌ها #}
+{# رنگ هر سطح همان خانواده‌ی اعلان‌ها است (خطا: قرمز، بقیه: کهربایی/برند). #}
+{% if messages %}
+<div class="mx-auto w-full max-w-3xl px-4 pt-4" role="region" aria-label="پیام‌های سیستم">
+  {% for message in messages %}
+  <div data-level="{{ message.level_tag }}"
+       {% if message.level_tag == 'error' %}role="alert"{% else %}role="status"{% endif %}
+       aria-live="polite"
+       class="rounded-xl border px-4 py-3 text-sm font-medium leading-7 shadow-card
+              {% if message.level_tag == 'error' %}border-red-300 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200
+              {% elif message.level_tag == 'success' %}border-brand-200 bg-brand-50 text-brand-800 dark:border-brand-900 dark:bg-brand-950/60 dark:text-brand-200
+              {% else %}border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200{% endif %}">
+    {{ message }}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}

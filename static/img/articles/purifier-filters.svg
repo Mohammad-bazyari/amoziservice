@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="تعویض فیلتر آب‌تصفیه‌کن">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="640" y2="360" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1d4ed8"/>
+      <stop offset="1" stop-color="#38bdf8"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#bg)"/>
+  <g opacity="0.14" stroke="#ffffff" stroke-width="2" fill="none">
+    <path d="M80 60c30 40 -30 80 0 120"/>
+    <path d="M560 180c30 40 -30 80 0 120"/>
+  </g>
+  <!-- three filter cartridges -->
+  <g>
+    <rect x="150" y="90" width="80" height="180" rx="26" fill="#ffffff" opacity="0.95"/>
+    <rect x="162" y="150" width="56" height="90" rx="14" fill="#93c5fd"/>
+    <rect x="280" y="90" width="80" height="180" rx="26" fill="#ffffff" opacity="0.95"/>
+    <rect x="292" y="150" width="56" height="90" rx="14" fill="#fbbf24"/>
+    <rect x="410" y="90" width="80" height="180" rx="26" fill="#ffffff" opacity="0.95"/>
+    <rect x="422" y="150" width="56" height="90" rx="14" fill="#a78bfa"/>
+  </g>
+  <!-- droplet -->
+  <path d="M320 20c16 18 26 30 26 44a26 26 0 1 1-52 0c0-14 10-26 26-44z" fill="#ffffff"/>
+  <text x="190" y="320" font-family="sans-serif" font-size="20" font-weight="bold" fill="#ffffff" text-anchor="middle">۱</text>
+  <text x="320" y="320" font-family="sans-serif" font-size="20" font-weight="bold" fill="#ffffff" text-anchor="middle">۲</text>
+  <text x="450" y="320" font-family="sans-serif" font-size="20" font-weight="bold" fill="#ffffff" text-anchor="middle">۳</text>
+</svg>

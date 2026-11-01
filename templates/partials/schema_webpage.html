@@ -1,0 +1,14 @@
+{# schema.org/WebPage with SpeakableSpecification for GEO voice/AI extraction. #}
+{
+  "@context": "https://schema.org",
+  "@type": "{{ page_type|default:'WebPage' }}",
+  "name": "{{ page_name|default:site_settings.effective_seo_title|escapejs }}",
+  "description": "{{ page_description|default:site_settings.default_meta_description|escapejs }}",
+  "url": "{{ request.build_absolute_uri }}",
+  "inLanguage": "fa-IR",
+  "isPartOf": {"@type": "WebSite", "name": "{{ site_settings.business_name|escapejs }}", "url": "{{ request.scheme }}://{{ request.get_host }}/"},
+  "speakable": {
+    "@type": "SpeakableSpecification",
+    "cssSelector": ["h1", ".summary", ".faq-answer", ".prose-fa"]
+  }
+}

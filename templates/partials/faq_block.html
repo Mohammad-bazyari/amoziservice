@@ -1,0 +1,79 @@
+{% load fa %}
+{% comment %}
+  بلوک مشترک «پرسش‌های متداول» — دو ستونی: ۲/۵ عنوان، ۳/۵ پرسش‌ها.
+  موبایل یک‌ستونی است و از lg به بالا شبکه‌ی ۵ ستونی اعمال می‌شود.
+
+  پارامترها (همه با {% templatetag openblock %} include ... with {% templatetag closeblock %} پاس می‌شوند):
+    faq_items        مجموعه پرسش‌ها (الزامی)
+    faq_heading      تیتر بخش
+    faq_intro        توضیح کوتاه زیر تیتر (اختیاری)
+    faq_heading_tag  h1 یا h2 — پیش‌فرض h2
+    faq_more_url     نشانی صفحه‌ی همه‌ی پرسش‌ها (اختیاری)
+    faq_more_label   متن پیوند «همه پرسش‌ها»
+    faq_id_prefix    پیشوند شناسه‌ها تا دو بلوک در یک صفحه تداخل نکنند
+
+  ارتفاع هر پنل با grid-template-rows (۰fr → ۱fr) باز و بسته می‌شود؛ رفتار در
+  static/js/accordion.js است و تریگرها aria-expanded/aria-controls دارند.
+  آیتم اول به‌صورت پیش‌فرض باز است تا بدون جاوااسکریپت هم حداقل یک پاسخ دیده شود.
+{% endcomment %}
+{% with prefix=faq_id_prefix|default:"faq" tag=faq_heading_tag|default:"h2" %}
+<section class="mx-auto max-w-6xl px-4 py-14 md:py-18" aria-labelledby="{{ prefix }}-heading">
+  <div class="grid grid-cols-1 gap-8 lg:grid-cols-5 lg:gap-12">
+    <header class="lg:col-span-2">
+      <div class="lg:sticky lg:top-24">
+        <div class="mb-3 inline-flex items-center gap-1.5 rounded-full border border-brand-200/80 bg-brand-50 px-3.5 py-1 text-xs font-bold text-brand-700 dark:border-brand-800/80 dark:bg-brand-950/70 dark:text-brand-300">
+          {% lucide "circle-help" "w-3.5 h-3.5" %}
+          <span>راهنمای سریع مشتریان</span>
+        </div>
+        {% if tag == "h1" %}
+        <h1 id="{{ prefix }}-heading" class="text-balance text-3xl font-extrabold leading-[1.6] text-slate-900 dark:text-white md:text-4xl">{{ faq_heading }}</h1>
+        {% else %}
+        <h2 id="{{ prefix }}-heading" class="text-balance text-2xl font-bold leading-[1.6] text-slate-900 dark:text-white md:text-3xl">{{ faq_heading }}</h2>
+        {% endif %}
+        {% if faq_intro %}
+        <p class="mt-4 leading-8 text-slate-600 dark:text-slate-300">{{ faq_intro }}</p>
+        {% endif %}
+        {% if faq_more_url %}
+        <a href="{{ faq_more_url }}"
+           class="mt-6 inline-flex items-center gap-2 rounded-xl border border-brand-200/90 bg-brand-50 px-4 py-2.5 text-sm font-bold text-brand-700 transition hover:border-brand-300 hover:bg-brand-100 dark:border-brand-800/80 dark:bg-brand-950/70 dark:text-brand-300 dark:hover:bg-brand-900/60">
+          <span>{{ faq_more_label|default:"مشاهده همه پرسش‌ها" }}</span>
+          {% lucide "arrow-left" "w-4 h-4" %}
+        </a>
+        {% endif %}
+      </div>
+    </header>
+
+    <div class="lg:col-span-3">
+      <div class="faq-accordion" data-accordion="single">
+        {% for faq in faq_items %}
+        <div class="faq-accordion__item" data-state="{% if forloop.first %}open{% else %}closed{% endif %}">
+          <h3>
+            <button type="button"
+                    id="{{ prefix }}-trigger-{{ forloop.counter }}"
+                    class="faq-accordion__trigger"
+                    data-accordion-trigger
+                    aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}"
+                    aria-controls="{{ prefix }}-panel-{{ forloop.counter }}">
+              <span class="flex-1 text-start">{{ faq.question }}</span>
+              <span class="faq-accordion__chevron" aria-hidden="true">
+                {# «+» بسته؛ باز: چرخش ۴۵ درقه به «×» قرمز — در CSS بخش faq-accordion__chevron #}
+                {% lucide "plus" "w-5 h-5" %}
+              </span>
+            </button>
+          </h3>
+          <div id="{{ prefix }}-panel-{{ forloop.counter }}"
+               class="faq-accordion__panel"
+               data-state="{% if forloop.first %}open{% else %}closed{% endif %}"
+               role="region"
+               aria-labelledby="{{ prefix }}-trigger-{{ forloop.counter }}">
+            <div class="faq-accordion__panel-inner">
+              <p class="faq-accordion__answer">{{ faq.answer|render_text }}</p>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endwith %}

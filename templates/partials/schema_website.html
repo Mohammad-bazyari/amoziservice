@@ -1,0 +1,12 @@
+{# schema.org/WebSite + SearchAction — site-wide entity from base.html. #}
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "{{ site_settings.business_name|escapejs }}",
+  "url": "{{ request.scheme }}://{{ request.get_host }}/",
+  "inLanguage": "fa-IR",
+  "publisher": {
+    "@type": "Organization",
+    "name": "{{ site_settings.business_name|escapejs }}"
+  }
+}

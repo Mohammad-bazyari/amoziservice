@@ -1,0 +1,17 @@
+{# schema.org/Organization — emitted once on every page from base.html. #}
+{% load static %}
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "{{ site_settings.business_name|escapejs }}",
+  "url": "{{ request.scheme }}://{{ request.get_host }}/",
+  "logo": "{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo.svg' %}",
+  "areaServed": "{{ site_settings.province|escapejs }}",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "customer service",
+    "telephone": "{{ site_settings.business_phone|escapejs }}",
+    "areaServed": "IR",
+    "availableLanguage": ["fa"]
+  }
+}
