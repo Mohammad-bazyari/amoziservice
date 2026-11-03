@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="رفع نشتی آب و آب‌بندی اتصالات پکیج">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="640" y2="360" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0f766e"/>
+      <stop offset="1" stop-color="#0284c7"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#bg)"/>
+  <g opacity="0.15" stroke="#ffffff" stroke-width="2" fill="none">
+    <circle cx="100" cy="180" r="60"/>
+    <circle cx="540" cy="180" r="60"/>
+  </g>
+  <!-- pipe fittings and valve -->
+  <g stroke="#ffffff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M220 180 h200"/>
+    <path d="M320 180 v70"/>
+  </g>
+  <rect x="290" y="150" width="60" height="60" rx="10" fill="#ffffff"/>
+  <!-- valve handle -->
+  <rect x="295" y="115" width="50" height="18" rx="6" fill="#f59e0b"/>
+  <rect x="313" y="133" width="14" height="18" fill="#d97706"/>
+  <!-- water droplets -->
+  <g fill="#38bdf8" stroke="#0284c7" stroke-width="2">
+    <path d="M320 280 C320 280 304 305 304 316 A16 16 0 0 0 336 316 C336 305 320 280 320 280 Z"/>
+    <path d="M360 295 C360 295 350 310 350 318 A10 10 0 0 0 370 318 C370 310 360 295 360 295 Z" opacity="0.8"/>
+  </g>
+</svg>

@@ -1,4 +1,4 @@
-# DEPLOYMENT — agent-facing facts (اوستا سرویس)
+# DEPLOYMENT — agent-facing facts (آموزی سرویس)
 
 > **This is NOT a duplicate runbook.** The authoritative, step-by-step
 > deploy procedure for the owner lives in [`../DEPLOY.md`](../DEPLOY.md)
@@ -49,13 +49,11 @@ Three documented transports: **ZIP upload** (first deploy),
 
 ## 3. Domain & DNS checklist
 
-- [ ] Domain connected to hosting — UNKNOWN, owner must confirm name.
-- [ ] SSL (AutoSSL run) — UNKNOWN.
-- [ ] `DJANGO_ALLOWED_HOSTS` includes both apex and `www` — value UNKNOWN.
-- [ ] Optional HTML/GSC verification file goes in `public_html`
-  (documented in `docs/SEARCH-CONSOLE-GUIDE.md` §1, incl. `.htaccess`
-  exception `RewriteCond %{REQUEST_URI} !^/google`).
-- No DNS records are recorded anywhere in this repo. NEEDS CONFIRMATION.
+- [x] Domain connected to hosting — VERIFIED: `amoziservice.com` / `www.amoziservice.com` -> `88.135.68.30`.
+- [x] Nameservers — VERIFIED: `dns1.mizbanfadns.net` ... `dns4.mizbanfadns.net`.
+- [x] SSL (Let's Encrypt / AutoSSL) — VERIFIED: Valid for `amoziservice.com`, `*.amoziservice.com` (Oct 2026 - Jan 2027).
+- [ ] Host `.env` / Setup Python App `DJANGO_ALLOWED_HOSTS` includes `amoziservice.com,www.amoziservice.com`.
+- [ ] Host `.env` / Setup Python App `DJANGO_CSRF_TRUSTED_ORIGINS` includes `https://amoziservice.com,https://www.amoziservice.com`.
 
 ## 4. SSL / TLS
 

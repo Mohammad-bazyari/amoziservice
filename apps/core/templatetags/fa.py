@@ -213,13 +213,13 @@ def breadcrumb_jsonld(context):
 
 @register.filter
 def first_word(value):
-    """First space-separated word: "اوستا سرویس" → "اوستا"."""
+    """First space-separated word: "آموزی سرویس" → "آموزی"."""
     return str(value or "").split(" ")[0] if str(value or "").strip() else ""
 
 
 @register.filter
 def rest_words(value):
-    """Everything after the first word: "اوستا سرویس" → "سرویس"."""
+    """Everything after the first word: "آموزی سرویس" → "سرویس"."""
     parts = str(value or "").split(" ", 1)
     return parts[1] if len(parts) > 1 else ""
 

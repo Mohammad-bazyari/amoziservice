@@ -1,4 +1,5 @@
 """Content and CMS models: brands, services, problems, homepage/about/contact copy, FAQ, pages."""
+from django.conf import settings
 from django.db import models
 
 from apps.core.common import SlugAutoMixin, TimeStampedModel, SEOMixin
@@ -249,7 +250,7 @@ class HomePageContent(TimeStampedModel):
 
     brands_title = models.CharField("عنوان بخش برندها", max_length=120, default="برندهای تحت سرویس")
 
-    benefits_title = models.CharField("عنوان مزایا", max_length=120, default="چرا اوستا سرویس؟")
+    benefits_title = models.CharField("عنوان مزایا", max_length=120, default="چرا آموزی سرویس؟")
 
     steps_title = models.CharField("عنوان مراحل", max_length=120, default="مراحل کار")
 
@@ -274,10 +275,122 @@ class HomePageContent(TimeStampedModel):
         verbose_name_plural = "محتوای صفحه اصلی"
 
 
+class HeroShowcase(TimeStampedModel):
+    """CMS-managed showcase card in the homepage hero section.
+
+    Controls the main badge, headline, description, main icon,
+    and the 3 feature buttons linking to troubleshooting articles.
+    """
+
+    ICON_CHOICES = [(c, c) for c in getattr(settings, "ADMIN_ICON_CHOICES", ())]
+
+    # بخش اطلاعات و سرتیتر اصلی
+    badge_text = models.CharField(
+        "متن نشان وضعیت",
+        max_length=120,
+        default="سرویس‌کاران فعال و آماده اعزام",
+        help_text="نشان وضعیت بالای کارت (مثلاً: سرویس‌کاران فعال و آماده اعزام)",
+    )
+    badge_subtext = models.CharField(
+        "متن فرعی نشان",
+        max_length=80,
+        default="تهران و حومه",
+        help_text="برچسب فرعی نشان (مثلاً: تهران و حومه یا اعزام در سریع‌ترین زمان)",
+    )
+    main_icon = models.CharField(
+        "آیکون اصلی",
+        max_length=60,
+        default="flame",
+        choices=ICON_CHOICES,
+        help_text="آیکون درشت کنار عنوان اصلی",
+    )
+    main_title = models.CharField(
+        "عنوان اصلی کارت",
+        max_length=150,
+        default="عیب‌یابی تخصصی در محل",
+        help_text="عنوان اصلی خدمات ویژه (مثلاً: عیب‌یابی تخصصی در محل)",
+    )
+    main_description = models.TextField(
+        "توضیحات اصلی کارت",
+        default="تست کامل راندمان گرمایش، پمپ، شیر گاز، سنسورها و قطعات یدکی اصل",
+        help_text="توضیح زیر عنوان اصلی",
+    )
+
+    # دکمه اول
+    button1_title = models.CharField("عنوان دکمه اول", max_length=100, default="افت فشار آب")
+    button1_subtitle = models.CharField("زیرعنوان دکمه اول", max_length=120, default="تست منبع انبساط")
+    button1_icon = models.CharField("آیکون دکمه اول", max_length=60, default="gauge", choices=ICON_CHOICES)
+    button1_article = models.ForeignKey(
+        "content.Article",
+        verbose_name="مقاله متصل به دکمه اول",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="مقاله‌ای که با کلیک روی دکمه اول باز می‌شود",
+    )
+
+    # دکمه دوم
+    button2_title = models.CharField("عنوان دکمه دوم", max_length=100, default="رفع نشتی آب")
+    button2_subtitle = models.CharField("زیرعنوان دکمه دوم", max_length=120, default="آب‌بندی اتصالات")
+    button2_icon = models.CharField("آیکون دکمه دوم", max_length=60, default="droplets", choices=ICON_CHOICES)
+    button2_article = models.ForeignKey(
+        "content.Article",
+        verbose_name="مقاله متصل به دکمه دوم",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="مقاله‌ای که با کلیک روی دکمه دوم باز می‌شود",
+    )
+
+    # دکمه سوم
+    button3_title = models.CharField("عنوان دکمه سوم", max_length=100, default="رفع ارور برد")
+    button3_subtitle = models.CharField("زیرعنوان دکمه سوم", max_length=120, default="عیب‌یابی الکترونیک")
+    button3_icon = models.CharField("آیکون دکمه سوم", max_length=60, default="zap", choices=ICON_CHOICES)
+    button3_article = models.ForeignKey(
+        "content.Article",
+        verbose_name="مقاله متصل به دکمه سوم",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="مقاله‌ای که با کلیک روی دکمه سوم باز می‌شود",
+    )
+
+    class Meta:
+        verbose_name = "باکس عیب‌یابی هیرو"
+        verbose_name_plural = "باکس عیب‌یابی هیرو"
+
+    def __str__(self):
+        return f"باکس عیب‌یابی: {self.main_title}"
+
+    @classmethod
+    def load(cls):
+        """Get or create singleton instance."""
+        obj, _ = cls.objects.get_or_create()
+        return obj
+
+    def get_button1_url(self):
+        if self.button1_article and self.button1_article.slug:
+            return self.button1_article.get_absolute_url()
+        return "/articles/"
+
+    def get_button2_url(self):
+        if self.button2_article and self.button2_article.slug:
+            return self.button2_article.get_absolute_url()
+        return "/articles/"
+
+    def get_button3_url(self):
+        if self.button3_article and self.button3_article.slug:
+            return self.button3_article.get_absolute_url()
+        return "/articles/"
+
+
 class AboutPageContent(TimeStampedModel):
     """CMS-managed about page content."""
 
-    title = models.CharField("عنوان", max_length=200, default="درباره اوستا سرویس")
+    title = models.CharField("عنوان", max_length=200, default="درباره آموزی سرویس")
     intro = models.TextField("مقدمه", blank=True, default="")
     body = models.TextField("متن صفحه", blank=True, default="")
     image = models.FileField("تصویر", upload_to="about/%Y/%m/", blank=True)

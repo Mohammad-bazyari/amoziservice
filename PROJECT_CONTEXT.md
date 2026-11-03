@@ -1,4 +1,4 @@
-# PROJECT_CONTEXT — اوستا سرویس (Osta Service)
+# PROJECT_CONTEXT — آموزی سرویس (Amozi Service)
 
 > **Knowledge base for AI agents and future developers.** Read this file
 > before changing anything in the project. Last full audit: 2026-10-21.
@@ -31,11 +31,7 @@ Sources actually inspected on 2026-10-21 (all paths relative to project root):
 
 ## A. Project overview
 
-- **Project name:** اوستا سرویس (in code the frontend tool
-  name is `tamirat-baradaran-frontend`, and directory roots contain
-  "tamirgah baradaran"; initial branding was "برادران" before the
-  rename seen in `config/settings.py` admin branding `[ADMIN_SITE_HEADER]`
-  traces to a legacy naming — VERIFIED as strings; the rename's date is UNKNOWN)
+- **Project name:** آموزی سرویس (Amozi Service) — دامنه: `amoziservice.com` (نام قبلی: اوستا سرویس / `ostaservice.ir`; مخزن: `Mohammad-bazyari/amoziservice`)
 - **Purpose:** Persian-language (**RTL, fully fa-IR**) repair-booking site
   for wall-mounted gas boilers (پکیج) in Tehran: customer submits a
   multi-step request online with photos; repair tech receives SMS; admin
@@ -115,7 +111,9 @@ Sources actually inspected on 2026-10-21 (all paths relative to project root):
 | Sep 22–25 | CMS content built and fixtures exported (`host_data.json` timestamps up to Sep 25) | fixture JSON | PARTIALLY VERIFIED |
 | Migration 0003…0007 chain | Per-service wizard options, `ServiceArea`, `Article`, brand `logo_theme`, homepage benefits → row model (0007) | filenames in `apps/content/migrations/` plus DEPLOY.md warnings | VERIFIED |
 | Migration 0009 | `brand_logo_theme` added (dark card variant for light logos) | `apps/content/migrations/0009_brand_logo_theme.py` | VERIFIED |
+| Migration 0011 | `HeroShowcase` model added to manage hero troubleshooting card & 3 article buttons from admin; 3 comprehensive boiler repair guides authored | `apps/content/models.py`, `apps/content/migrations/0011_heroshowcase.py` | VERIFIED |
 | Oct 19–21 2026 | Accessibility/polish pass on wizard form and FAQ (aria-invalid, error summary, marquee, dark mode texture) visible in recent file mtimes and logs | file mtime, `logs/` | PARTIALLY VERIFIED (no Git) |
+| Nov 03 2026 | Full production database restored from host dump (`ostaserv_osta.sql.gz`): 20 articles, 8 FAQs, 7 brands, 2 services, 10 requests, SiteSettings; adapted for schema evolutions (`accounts.0003`, `content.0009`); created `manage.py restore_host_dump`, exported `fixtures/production_data.json` and `fixtures/production_clean_mysql.sql` | `apps/core/management/commands/restore_host_dump.py`, `fixtures/*` | VERIFIED |
 | Guideline | **Keep PyMySQL as the driver, never mysqlclient** — compiles are hard on shared hosts | comments in `requirements.txt` + `passenger_wsgi.py` | VERIFIED |
 | Guideline | **Client-side validation is a hint; server stays authoritative** | `apps/requests/tests_wizard_form.py:159-164` ("test_server_still_rejects_what_the_client_hints_cannot_catch") | VERIFIED |
 | Guideline | **No `.env` / `db.sqlite3` / `media/` in deploy zip.** The 2026-10-21 zip (`osta-deploy.zip`) violates this by containing `__pycache__/` — regenerate before next deploy. | `DEPLOY.md` §0.4 vs `unzip -l` | VERIFIED (mismatch) |

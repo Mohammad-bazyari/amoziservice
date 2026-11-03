@@ -18,42 +18,63 @@
     مراحل را یکی‌یکی کامل کنید؛ اطلاعات شما فقط برای هماهنگی تعمیر استفاده می‌شود.
   </p>
 
-  <!-- Progress indicator -->
-  <ol class="mt-8 grid grid-cols-3 gap-2 sm:grid-cols-6" aria-label="مراحل ثبت درخواست">
-    {% for step_slug, step_title in step_items %}
-    <li class="min-w-0">
-      {% if forloop.counter0 < current_index %}
-      <a href="{% url 'requests:step' step_slug %}" class="group block rounded-xl border border-brand-200/80 bg-brand-50/80 px-2 py-2.5 text-center text-[11px] font-bold text-brand-700 transition hover:bg-brand-100/70 hover:border-brand-300 dark:border-brand-800/80 dark:bg-brand-950/60 dark:text-brand-300 dark:hover:bg-brand-900/50">
-        <span class="num flex items-center justify-center gap-0.5 text-[10px] text-brand-600 dark:text-brand-400">
-          {% lucide "check" "w-3 h-3 text-emerald-500" %}
-          <span>{{ forloop.counter|fa_digits }}</span>
-        </span>
-        <span class="mt-0.5 block truncate">{{ step_title }}</span>
-      </a>
-      {% elif step_slug == current_step %}
-      <span aria-current="step" class="block rounded-xl bg-brand-600 px-2 py-2.5 text-center text-[11px] font-extrabold text-white shadow-md shadow-brand-600/25 ring-2 ring-brand-500/30 dark:ring-brand-400/20">
-        <span class="num block text-[10px] text-brand-200">{{ forloop.counter|fa_digits }}</span>
-        <span class="mt-0.5 block truncate">{{ step_title }}</span>
-      </span>
-      {% else %}
-      <span class="block rounded-xl border border-slate-200/80 bg-white/70 px-2 py-2.5 text-center text-[11px] font-medium text-slate-400 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-500">
-        <span class="num block text-[10px]">{{ forloop.counter|fa_digits }}</span>
-        <span class="mt-0.5 block truncate">{{ step_title }}</span>
-      </span>
-      {% endif %}
-    </li>
-    {% endfor %}
-  </ol>
+  <!-- Stepper Progress Indicator (Connected Circles) -->
+  <nav aria-label="مراحل ثبت درخواست" class="mt-8 mb-8 select-none" dir="rtl">
+    <ol class="flex items-start w-full">
+      {% for step_slug, step_title in step_items %}
+      <li class="relative flex-1">
+        <!-- Connecting Line between circle centers -->
+        {% if not forloop.last %}
+        <div class="absolute top-5 -translate-y-1/2 start-1/2 w-full h-1 z-0" aria-hidden="true">
+          <div class="h-full w-full transition-colors duration-300 {% if forloop.counter0 < current_index %}bg-brand-600 dark:bg-brand-500{% else %}bg-slate-200 dark:bg-slate-700{% endif %}"></div>
+        </div>
+        {% endif %}
+
+        <!-- Circle & Label -->
+        <div class="relative z-10 flex flex-col items-center group">
+          {% if forloop.counter0 < current_index %}
+          {# Completed step: check icon + bg-brand-600 #}
+          <a href="{% url 'requests:step' step_slug %}"
+             class="flex h-10 w-10 items-center justify-center rounded-full bg-brand-600 text-white shadow-xs transition-all duration-200 hover:scale-105 hover:bg-brand-700 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900"
+             aria-label="گام {{ forloop.counter|fa_digits }}: {{ step_title }} (تکمیل شده)">
+            {% lucide "check" "w-5 h-5 stroke-[2.5]" %}
+          </a>
+          <span class="mt-2 block text-center text-[11px] sm:text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-brand-600 transition-colors max-w-[4.5rem] sm:max-w-[6rem] truncate">
+            {{ step_title }}
+          </span>
+          {% elif step_slug == current_step %}
+          {# Current step: ring + number from 1 #}
+          <span aria-current="step"
+                class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-brand-600 bg-white dark:bg-slate-900 text-brand-600 dark:text-brand-400 ring-4 ring-brand-500/20 font-black text-xs sm:text-sm shadow-xs"
+                aria-label="گام {{ forloop.counter|fa_digits }}: {{ step_title }} (گام فعلی)">
+            <span class="num">{{ forloop.counter|fa_digits }}</span>
+          </span>
+          <span class="mt-2 block text-center text-[11px] sm:text-xs font-black text-brand-700 dark:text-brand-300 max-w-[4.5rem] sm:max-w-[6rem] truncate">
+            {{ step_title }}
+          </span>
+          {% else %}
+          {# Upcoming step: gray border + muted number from 1 #}
+          <span class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 font-bold text-xs sm:text-sm"
+                aria-label="گام {{ forloop.counter|fa_digits }}: {{ step_title }}">
+            <span class="num">{{ forloop.counter|fa_digits }}</span>
+          </span>
+          <span class="mt-2 block text-center text-[11px] sm:text-xs font-medium text-slate-400 dark:text-slate-500 max-w-[4.5rem] sm:max-w-[6rem] truncate">
+            {{ step_title }}
+          </span>
+          {% endif %}
+        </div>
+      </li>
+      {% endfor %}
+    </ol>
+  </nav>
 
   <!-- Form card -->
   {% if current_step == "problem" %}
-  <form method="post" enctype="multipart/form-data" novalidate data-wizard-form x-data="{ submitting: false, brand: '{{ form.brand_choice.value|default:"" }}', problem: '{{ form.problem_choice.value|default:"" }}' }"
-        @submit="if (window.WizardForm &amp;&amp; !window.WizardForm.validate($event.target)) { return false } submitting = true"
-        class="surface-sheen mt-6 rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-xl md:p-8">
-  {% elif current_step == "images" %}
   <form method="post" enctype="multipart/form-data" novalidate data-wizard-form
         x-data="{
           submitting: false,
+          brand: '{{ form.brand_choice.value|default:"" }}',
+          problem: '{{ form.problem_choice.value|default:"" }}',
           dragging: false,
           files: [],
           uploadError: '',
@@ -71,11 +92,9 @@
             let added = 0;
             for (const f of list) {
               if (this.files.length >= this.maxFiles) { this.uploadError = 'حداکثر ' + this.faNum(this.maxFiles) + ' تصویر می‌توانید ارسال کنید.'; break; }
-              // متن با پیام سمت سرور (messages.py) یکی است تا اعلان و صفحه یک صدا باشند.
               if (f.size > this.maxMb * 1048576) { this.uploadError = 'حجم تصویر نباید بیشتر از ' + this.faNum(this.maxMb) + ' مگابایت باشد.'; continue; }
               this.files.push(f); added += 1;
             }
-            // اعلان همان مشکل، علاوه بر پیام داخل صفحه
             if (this.uploadError) { window.WizardToast &amp;&amp; window.WizardToast.warning('تصاویر', { description: this.uploadError }); }
             else if (added) { window.WizardToast &amp;&amp; window.WizardToast.success('تصاویر افزوده شد', { description: window.WizardToast.faDigits(added) + ' تصویر انتخاب شد.' }); }
             this.syncInput();
@@ -83,6 +102,7 @@
           remove(i) { this.files.splice(i, 1); this.uploadError = ''; this.syncInput(); },
           syncInput() {
             const input = document.getElementById('id_images');
+            if (!input) return;
             const dt = new DataTransfer();
             this.files.forEach(f => dt.items.add(f));
             input.files = dt.files;
@@ -124,15 +144,43 @@
     </div>
     {% endif %}
 
-    {% if current_step == "images" %}
-    <p id="wizard-step-hint" class="mb-4 text-sm leading-7 text-slate-600 dark:text-slate-300">
-      اگر تصویری از دستگاه یا پیغام خطای آن دارید، بارگذاری کنید (اختیاری — حداکثر
-      <span class="num">{{ max_images|fa_digits }}</span> تصویر، هر کدام تا
-      <span class="num">{{ max_image_mb|fa_digits }}</span> مگابایت).
-    </p>
-    {% endif %}
-
     {% for field in form %}
+    {% if field.name == "unit" %}
+      {# Rendered alongside plaque below #}
+    {% elif field.name == "plaque" %}
+    <div class="mt-5 scroll-mt-24 first:mt-0">
+      <div class="grid grid-cols-2 gap-3 sm:gap-4">
+        <div data-field>
+          <label for="{{ form.plaque.id_for_label }}" class="mb-1.5 block text-sm font-bold text-slate-800 dark:text-slate-100">
+            {{ form.plaque.label }}
+            {% if form.plaque.field.required %}<span class="text-red-500" aria-hidden="true">*</span>{% endif %}
+          </label>
+          {% if form.plaque.errors %}
+          <ul id="{{ form.plaque.auto_id }}-error" class="mt-1 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300" role="alert">
+            {% for error in form.plaque.errors %}<li>{{ error }}</li>{% endfor %}
+          </ul>
+          {% endif %}
+          <div class="{% if form.plaque.errors %}mt-2{% endif %}">
+            {{ form.plaque }}
+          </div>
+        </div>
+        <div data-field>
+          <label for="{{ form.unit.id_for_label }}" class="mb-1.5 block text-sm font-bold text-slate-800 dark:text-slate-100">
+            {{ form.unit.label }}
+            {% if form.unit.field.required %}<span class="text-red-500" aria-hidden="true">*</span>{% endif %}
+          </label>
+          {% if form.unit.errors %}
+          <ul id="{{ form.unit.auto_id }}-error" class="mt-1 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300" role="alert">
+            {% for error in form.unit.errors %}<li>{{ error }}</li>{% endfor %}
+          </ul>
+          {% endif %}
+          <div class="{% if form.unit.errors %}mt-2{% endif %}">
+            {{ form.unit }}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% else %}
     <div class="mt-5 scroll-mt-24 first:mt-0" data-field>
       {% if field.field.widget.input_type != "hidden" %}
         {% if field.name == "other_brand_name" and not form.no_brand_list %}
@@ -175,6 +223,14 @@
         {{ field }}
       </div>
       {% elif field.name == "images" %}
+      <span class="mb-1.5 block text-sm font-bold text-slate-800 dark:text-slate-100">
+        {{ field.label }}
+      </span>
+      <p id="wizard-step-hint" class="mb-3 text-xs leading-6 text-slate-500 dark:text-slate-400">
+        اگر تصویری از دستگاه یا پیغام خطای آن دارید، بارگذاری کنید (حداکثر
+        <span class="num">{{ max_images|fa_digits }}</span> تصویر، هر کدام تا
+        <span class="num">{{ max_image_mb|fa_digits }}</span> مگابایت).
+      </p>
       <!-- Custom drop zone: dashed border, strengthens on dragover; native input stays hidden -->
       <div>
         <button type="button"
@@ -234,6 +290,7 @@
         {% endif %}
       </div>
     </div>
+    {% endif %}
     {% endfor %}
 
     <div class="mt-8 flex items-center justify-between gap-3 border-t border-slate-100 dark:border-slate-800 pt-6">

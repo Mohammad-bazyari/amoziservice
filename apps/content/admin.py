@@ -11,6 +11,7 @@ from apps.content.models import (
     Brand,
     ContactPageContent,
     FAQ,
+    HeroShowcase,
     HomePageContent,
     HomePageItem,
     Page,
@@ -231,6 +232,74 @@ class HomePageContentAdmin(ToolbarMixin, admin.ModelAdmin):
 
     def changelist_view(self, request, extra_context=None):
         return super().change_view(request, str(self.model.objects.get_or_create()[0].pk), extra_context=extra_context)
+
+
+@admin.register(HeroShowcase)
+class HeroShowcaseAdmin(ToolbarMixin, admin.ModelAdmin):
+    fieldsets = (
+        (
+            "سرتیتر و اطلاعات اصلی کارت (عیب‌یابی در محل)",
+            {
+                "fields": (
+                    "badge_text",
+                    "badge_subtext",
+                    "main_icon",
+                    "main_title",
+                    "main_description",
+                ),
+                "description": "اطلاعات بالای کارت شامل نشان وضعیت فعال، آیکون اصلی و متن معرفی خدمات عیب‌یابی در محل.",
+            },
+        ),
+        (
+            "دکمه اول (معمولاً افت فشار آب / تست منبع انبساط)",
+            {
+                "fields": (
+                    "button1_title",
+                    "button1_subtitle",
+                    "button1_icon",
+                    "button1_article",
+                ),
+                "description": "عنوان، زیرعنوان، آیکون و مقاله متصل به دکمه اول.",
+            },
+        ),
+        (
+            "دکمه دوم (معمولاً رفع نشتی آب / آب‌بندی اتصالات)",
+            {
+                "fields": (
+                    "button2_title",
+                    "button2_subtitle",
+                    "button2_icon",
+                    "button2_article",
+                ),
+                "description": "عنوان، زیرعنوان، آیکون و مقاله متصل به دکمه دوم.",
+            },
+        ),
+        (
+            "دکمه سوم (معمولاً رفع ارور برد / عیب‌یابی الکترونیک)",
+            {
+                "fields": (
+                    "button3_title",
+                    "button3_subtitle",
+                    "button3_icon",
+                    "button3_article",
+                ),
+                "description": "عنوان، زیرعنوان، آیکون و مقاله متصل به دکمه سوم.",
+            },
+        ),
+    )
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def changelist_view(self, request, extra_context=None):
+        return super().change_view(
+            request,
+            str(self.model.objects.get_or_create()[0].pk),
+            extra_context=extra_context,
+        )
 
 
 @admin.register(AboutPageContent)

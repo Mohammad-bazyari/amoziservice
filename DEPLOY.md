@@ -1,4 +1,4 @@
-# راهنمای کامل دیپلوی «اوستا سرویس» روی cPanel
+# راهنمای کامل دیپلوی «آموزی سرویس» روی cPanel
 
 این سند سه روش استقرار روی هاست اشتراکی cPanel (میزبان‌فا، ایران‌سرور، پارس‌پک و مشابه) را قدم‌به‌قدم توضیح می‌دهد:
 
@@ -73,8 +73,8 @@ nano .env
 ```ini
 DJANGO_SECRET_KEY=<رشته تصادفی بلند — دستور تولید داخل فایل هست>
 DJANGO_DEBUG=False
-DJANGO_ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
-DJANGO_CSRF_TRUSTED_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
+DJANGO_ALLOWED_HOSTS=amoziservice.com,www.amoziservice.com
+DJANGO_CSRF_TRUSTED_ORIGINS=https://amoziservice.com,https://www.amoziservice.com
 DATABASE_URL=mysql://cpaneluser_ostauser:DB-PASSWORD@localhost:3306/cpaneluser_ostadb
 DJANGO_SECURE_SSL_REDIRECT=True
 KAVENEGAR_ENABLED=False
@@ -82,11 +82,20 @@ KAVENEGAR_ENABLED=False
 
 > جایگزین امن‌تر: همین متغیرها را در **Setup Python App → Environment variables** وارد کنید و `DATABASE_URL` را از `.env` حذف کنید.
 
-سپس راه‌اندازی اولیه:
+سپس راه‌اندازی اولیه و بارگذاری اطلاعات:
 
+**روش اول (پیشنهادی برای دیپلوی تمیز با دیتای واقعی قبلی):**
 ```bash
 python manage.py migrate
-python manage.py seed_site               # محتوای اولیه (خدمات/برندها/CMS)
+python manage.py loaddata fixtures/production_data.json  # بارگذاری ۲۰ مقاله، برندها، تنظیمات و درخواست‌ها
+python manage.py collectstatic --noinput                 # بدون این، صفحات ممکن است ۵۰۰ شوند!
+```
+*(یا می‌توانید قبل از دستورات بالا، فایل `fixtures/production_clean_mysql.sql` را مستقیم از phpMyAdmin ایمپورت کرده و سپس فقط `migrate` و `collectstatic` را اجرا کنید).*
+
+**روش دوم (فقط برای راه‌اندازی تستی و خام بدون اطلاعات قبلی):**
+```bash
+python manage.py migrate
+python manage.py seed_site               # محتوای اولیه خام (خدمات/برندها/CMS)
 python manage.py collectstatic --noinput # بدون این، صفحات ممکن است ۵۰۰ شوند!
 python manage.py seed_admin_accounts     # یا createsuperuser
 ```

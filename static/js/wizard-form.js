@@ -35,6 +35,22 @@
     return Boolean(container && container.dataset.required);
   }
 
+  function isVisible(el) {
+    if (!el) return false;
+    if (el.closest && el.closest("[x-cloak]")) return false;
+    if (el.offsetParent === null && el.type !== "hidden") {
+      var style = window.getComputedStyle ? window.getComputedStyle(el) : null;
+      if (style && style.display === "none") return false;
+      var parent = el.parentElement;
+      while (parent && parent !== document.body) {
+        var pStyle = window.getComputedStyle ? window.getComputedStyle(parent) : null;
+        if (pStyle && pStyle.display === "none") return false;
+        parent = parent.parentElement;
+      }
+    }
+    return true;
+  }
+
   /** یکاهای اعتبارسنجی فرم، به ترتیب ظاهر شدن در صفحه. */
   function unitsOf(form) {
     var units = [];
@@ -79,6 +95,7 @@
     if (unit.group) {
       var container = groupContainer(unit);
       if (!isRequiredGroup(container)) return "";
+      if (container && !isVisible(container)) return "";
       var checked = unit.elements.some(function (radio) {
         return radio.checked;
       });
@@ -87,6 +104,7 @@
     }
 
     var el = unit.el;
+    if (!isVisible(el)) return "";
     var validity = el.validity;
     if (validity) {
       if (validity.valueMissing) return el.dataset.errorRequired || CLIENT_MESSAGES.valueMissing;
@@ -246,7 +264,7 @@
   }
 
   function renderSummary(form) {
-    var list = summaryList();
+    var summary = document.getElementById(SUMMARY_ID);
     var errors = clientErrors.get(form);
     var items = [];
     if (errors) {
@@ -256,29 +274,48 @@
       });
     }
 
-    if (list) {
-      Array.prototype.forEach.call(
-        list.querySelectorAll("li[data-client-error]"),
-        function (li) {
-          li.remove();
-        },
-      );
+    if (!items.length) {
+      if (summary) {
+        var serverItems = summary.querySelectorAll("li:not([data-client-error])");
+        if (!serverItems.length) {
+          summary.remove();
+        } else {
+          Array.prototype.forEach.call(
+            summary.querySelectorAll("li[data-client-error]"),
+            function (li) {
+              li.remove();
+            },
+          );
+        }
+      }
+      return;
     }
 
-    if (!items.length) return;
-    if (!list) {
-      list = document.createElement("ul");
-      list.setAttribute("data-error-list", "");
-      list.className = "mt-2 flex flex-col gap-1.5 ps-6";
-      var summary = ensureSummary();
-      summary.appendChild(list);
+    if (!summary) {
+      summary = mountSummary(form);
     }
+    var list = summaryList();
+    if (!list) return;
+
+    Array.prototype.forEach.call(
+      list.querySelectorAll("li[data-client-error]"),
+      function (li) {
+        li.remove();
+      },
+    );
+
     items.forEach(function (item) {
       var li = document.createElement("li");
       li.setAttribute("data-client-error", "");
       li.className = "list-disc marker:text-red-400";
       var link = document.createElement("a");
-      link.href = "#" + item.unit.el.id;
+      var targetId = item.unit.el.id;
+      if (item.unit.el.name === "images") targetId = "images-dropzone";
+      else if (item.unit.group) {
+        var container = groupContainer(item.unit);
+        if (container && container.id) targetId = container.id;
+      }
+      link.href = "#" + targetId;
       link.className =
         "font-bold text-red-700 underline underline-offset-4 decoration-red-300 hover:decoration-red-500 dark:text-red-300";
       var label = document.createElement("span");
@@ -308,7 +345,7 @@
     summary.setAttribute("role", "alert");
     summary.setAttribute("aria-labelledby", heading.id);
     summary.className =
-      "rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200";
+      "mb-5 rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200";
     summary.appendChild(heading);
     return summary;
   }
@@ -458,28 +495,14 @@
 
   /** همه‌ی میدان‌ها را بررسی می‌کند؛ در صورت خطا false برمی‌گرداند. */
   function validate(form) {
-    mountSummary(form);
     var firstInvalid = null;
-    var hasClientErrors = false;
 
     unitsOf(form).forEach(function (unit) {
       var message = checkUnit(form, unit);
       if (message && !firstInvalid) firstInvalid = unit;
-      if (message && !serverMessageNode(unit)) hasClientErrors = true;
     });
 
     renderSummary(form);
-
-    var summary = document.getElementById(SUMMARY_ID);
-    if (summary && !hasClientErrors) {
-      // خطاهای سرور باقی می‌مانند؛ فقط وقتی چیزی برای گفتن نیست جمع می‌شود.
-      var hasAny = summary.querySelector("li");
-      if (!hasAny) {
-        summary.remove();
-        var list = clientErrors.get(form);
-        if (list) list.clear();
-      }
-    }
 
     if (firstInvalid) {
       focusUnit(firstInvalid);
@@ -506,11 +529,7 @@
     form.dataset.summaryTimer = "1";
     window.setTimeout(function () {
       delete form.dataset.summaryTimer;
-      mountSummary(form);
       renderSummary(form);
-      // همهٔ خطاها رفع شد؟ خلاصه (حتی تهی) دیگر معنی ندارد؛ جمعش می‌کنیم.
-      var summary = document.getElementById(SUMMARY_ID);
-      if (summary && !summary.querySelector("li")) summary.remove();
     }, 0);
   }
 
@@ -536,7 +555,6 @@
         var unit = unitFor(form, el);
         if (!unit) return;
         checkUnit(form, unit);
-        mountSummary(form);
         renderSummary(form);
       },
       true,
@@ -584,7 +602,6 @@
       var unit = unitFor(form, el);
       if (!unit) return "";
       var message = checkUnit(form, unit);
-      mountSummary(form);
       renderSummary(form);
       return message;
     },

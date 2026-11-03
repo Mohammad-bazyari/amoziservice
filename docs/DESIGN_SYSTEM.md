@@ -1,4 +1,4 @@
-# DESIGN_SYSTEM — اوستا سرویس (verified token reference)
+# DESIGN_SYSTEM — آموزی سرویس (verified token reference)
 
 > **Source of truth: [`tools/tailwind/tailwind.css`](../tools/tailwind/tailwind.css)**,
 > built by `tools/tailwind/package.json` (`npm run build`) into

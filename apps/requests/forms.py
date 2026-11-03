@@ -103,6 +103,52 @@ class StepServiceForm(WizardAriaMixin, forms.Form):
         self.fields["service_choice"].choices = choices
 
 
+class MultipleFileInput(forms.ClearableFileInput):
+    """File input that accepts multiple files (Django's built-in doesn't)."""
+
+    allow_multiple_selected = True
+
+
+class MultipleFileField(forms.FileField):
+    """FileField returning the full list of uploaded files."""
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput)
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        if self.widget.allow_multiple_selected and isinstance(data, list):
+            result = [super(MultipleFileField, self).clean(d, initial) for d in data]
+            if all(f is None for f in result) and not self.required:
+                return None
+            return [f for f in result if f is not None]
+        return super().clean(data, initial)
+
+
+def _extract_device_name(service_name: str) -> str:
+    """Extract device noun from service title (e.g. 'تعمیر پکیج' -> 'پکیج')."""
+    if not service_name:
+        return "دستگاه"
+    text = service_name.strip()
+    prefixes = [
+        "تعمیر و سرویس",
+        "سرویس و تعمیر",
+        "تعمیرات",
+        "تعمیر",
+        "سرویس",
+        "نصب و تعمیر",
+        "نصب و راه‌اندازی",
+        "نصب و راه اندازی",
+        "نصب",
+    ]
+    for prefix in prefixes:
+        if text.startswith(prefix):
+            remainder = text[len(prefix):].strip()
+            if remainder:
+                return remainder
+    return text or "دستگاه"
+
+
 class StepProblemForm(WizardAriaMixin, forms.Form):
     """Step 2: brand (select or free-text "other") + the problem itself.
 
@@ -132,6 +178,11 @@ class StepProblemForm(WizardAriaMixin, forms.Form):
         required=False,
         widget=forms.TextInput(attrs={"class": "wizard-input", "placeholder": "مشکل را در یک جمله بنویسید"}),
     )
+    images = MultipleFileField(
+        label="تصاویر دستگاه یا ارور (اختیاری)",
+        required=False,
+        widget=MultipleFileInput(attrs={"accept": "image/jpeg,image/png,image/webp", "multiple": True, "aria-describedby": "wizard-step-hint"}),
+    )
     description = forms.CharField(
         label="توضیحات بیشتر (اختیاری)",
         required=False,
@@ -145,7 +196,7 @@ class StepProblemForm(WizardAriaMixin, forms.Form):
         if service is not None:
             brands = service.brands.filter(active=True)
             problems = service.problems.filter(active=True)
-            device_label = service.name
+            device_label = _extract_device_name(service.name)
         else:
             # review path: the items were already validated against the
             # service at step time; keep the labels the session carried.
@@ -187,6 +238,17 @@ class StepProblemForm(WizardAriaMixin, forms.Form):
             # «شرح مشکل» only appears when the customer picks «سایر» and is
             # then mandatory (client-side via Alpine; server-side in clean()).
             self.fields["other_problem_label"].widget.attrs[":required"] = "problem === 'other'"
+
+    def clean_images(self):
+        files = self.cleaned_data.get("images") or []
+        if not files:
+            return None
+        max_count = settings.REQUEST_IMAGE_MAX_COUNT
+        if len(files) > max_count:
+            raise ValidationError(txt.image_count_error(max_count))
+        for f in files:
+            validate_image_file(f)
+        return files
 
     def clean(self):
         cleaned = super().clean()
@@ -250,7 +312,6 @@ class StepCustomerForm(WizardAriaMixin, forms.Form):
 
 
 class StepAddressForm(WizardAriaMixin, forms.Form):
-    province = forms.CharField(label="استان", max_length=60, initial="تهران", widget=forms.TextInput(attrs={"class": "wizard-input"}))
     city = forms.CharField(label="شهر", max_length=60, initial="تهران", widget=forms.TextInput(attrs={"class": "wizard-input"}))
     district = forms.CharField(
         label="منطقه / محله",
@@ -264,53 +325,12 @@ class StepAddressForm(WizardAriaMixin, forms.Form):
     )
     plaque = forms.CharField(label="پلاک", max_length=20, required=False, widget=forms.TextInput(attrs={"class": "wizard-input"}))
     unit = forms.CharField(label="واحد", max_length=10, required=False, widget=forms.TextInput(attrs={"class": "wizard-input"}))
-    postal_code = forms.CharField(
-        label="کد پستی (اختیاری)",
-        max_length=10,
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                "class": "wizard-input",
-                "inputmode": "numeric",
-                "autocomplete": "postal-code",
-                "data-pattern": POSTAL_CODE_PATTERN,
-                "data-error-pattern": POSTAL_CODE_ERROR,
-            }
-        ),
-    )
     address_notes = forms.CharField(label="توضیحات آدرس (اختیاری)", required=False, widget=forms.Textarea(attrs={"class": "wizard-input", "rows": 2}))
-
-    def clean_postal_code(self):
-        value = (self.cleaned_data.get("postal_code") or "").strip()
-        if value and not re.fullmatch(POSTAL_CODE_PATTERN, value):
-            raise ValidationError(POSTAL_CODE_ERROR)
-        return value
-
-
-class MultipleFileInput(forms.ClearableFileInput):
-    """File input that accepts multiple files (Django's built-in doesn't)."""
-
-    allow_multiple_selected = True
-
-
-
-class MultipleFileField(forms.FileField):
-    """FileField returning the full list of uploaded files."""
-
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault("widget", MultipleFileInput)
-        super().__init__(*args, **kwargs)
-
-    def clean(self, data, initial=None):
-        if self.widget.allow_multiple_selected and isinstance(data, list):
-            result = [super(MultipleFileField, self).clean(d, initial) for d in data]
-            if all(f is None for f in result) and not self.required:
-                return None
-            return [f for f in result if f is not None]
-        return super().clean(data, initial)
 
 
 class StepImagesForm(WizardAriaMixin, forms.Form):
+    """Legacy form kept for backward compatibility; images are now submitted on StepProblemForm."""
+
     images = MultipleFileField(
         label="تصاویر پکیج یا پیغام خطا (اختیاری)",
         required=False,

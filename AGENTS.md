@@ -1,4 +1,4 @@
-# AGENTS.md — اوستا سرویس (Osta Service)
+# AGENTS.md — آموزی سرویس (Amozi Service)
 
 Persian RTL repair-booking site for boiler (پکیج) services in Tehran:
 **Django 5.2 · Tailwind v4 · cPanel shared hosting (Passenger + PyMySQL) ·

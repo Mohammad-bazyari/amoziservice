@@ -10,7 +10,7 @@ from django.urls import reverse
 from apps.content.models import Brand, ProblemOption, Service
 from apps.core.models import SiteSettings
 
-STEPS_IN_ORDER = ("service", "problem", "customer", "address", "images")
+STEPS_IN_ORDER = ("service", "problem", "customer", "address")
 
 
 def seed():
@@ -121,7 +121,7 @@ class WizardErrorSummaryTests(TestCase):
     def test_images_error_links_to_the_visible_drop_zone(self):
         # The native file input is visually hidden, so the summary must point at
         # the drop-zone button the customer actually sees.
-        resp = self._open("images")
+        resp = self._open("problem")
         self.assertContains(resp, 'id="images-dropzone"')
 
     def test_fresh_step_has_no_error_state(self):
@@ -156,12 +156,12 @@ class WizardErrorSummaryTests(TestCase):
         )
         self.assertContains(resp, PHONE_ERROR)
 
-    def test_postal_code_rule_is_shared_between_server_and_client(self):
-        from apps.requests.forms import POSTAL_CODE_ERROR, POSTAL_CODE_PATTERN
-
+    def test_address_step_fields(self):
         html = self._open("address").content.decode()
-        self.assertIn(f'data-pattern="{POSTAL_CODE_PATTERN}"', html)
-        self.assertIn(f'data-error-pattern="{POSTAL_CODE_ERROR}"', html)
+        self.assertIn('name="plaque"', html)
+        self.assertIn('name="unit"', html)
+        self.assertNotIn('name="postal_code"', html)
+        self.assertNotIn('name="province"', html)
 
     def test_server_still_rejects_what_the_client_hints_cannot_catch(self):
         """Client validation is a hint; the server remains authoritative."""

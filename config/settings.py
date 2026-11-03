@@ -1,5 +1,5 @@
 """
-Django settings for استا سرویس.
+Django settings for آموزی سرویس.
 
 Everything deployment-specific (SECRET_KEY, DEBUG, ALLOWED_HOSTS, database
 URL, Kavenegar credentials, trusted origins) is read from environment
@@ -181,7 +181,7 @@ KAVENEGAR_ENABLED = env_bool("KAVENEGAR_ENABLED", "False")
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Admin panel branding
-ADMIN_SITE_HEADER = "استا سرویس — پنل مدیریت"
+ADMIN_SITE_HEADER = "آموزی سرویس — پنل مدیریت"
 
 # Production hardening (harmless when DEBUG=True locally)
 if not DEBUG:

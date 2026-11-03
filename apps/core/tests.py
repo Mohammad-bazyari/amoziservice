@@ -14,7 +14,7 @@ class SiteSettingsTests(TestCase):
 
     def test_default_business_data(self):
         s = SiteSettings.load()
-        self.assertEqual(s.business_name, "اوستا سرویس")
+        self.assertEqual(s.business_name, "آموزی سرویس")
         self.assertEqual(s.business_phone, "09120832480")
         self.assertEqual(s.province, "تهران")
 
@@ -90,7 +90,7 @@ class ContextProcessorTests(TestCase):
     def test_site_settings_in_every_response(self):
         resp = self.client.get("/")
         self.assertIn("site_settings", resp.context)
-        self.assertEqual(resp.context["site_settings"].business_name, "اوستا سرویس")
+        self.assertEqual(resp.context["site_settings"].business_name, "آموزی سرویس")
 
 
 class BusinessRenamePropagationTests(TestCase):
@@ -125,7 +125,7 @@ class BusinessRenamePropagationTests(TestCase):
         s.save()
         html = self.client.get("/").content.decode("utf-8")
         self.assertIn("تست برند", html)
-        self.assertNotIn("اوستا سرویس", html)
+        self.assertNotIn("آموزی سرویس", html)
 
     def test_effective_seo_title_falls_back_to_name(self):
         s = SiteSettings.load()

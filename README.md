@@ -1,4 +1,4 @@
-# اوستا سرویس — سایت تعمیر پکیج (جنگو + cPanel)
+# آموزی سرویس — سایت تعمیر پکیج (جنگو + cPanel)
 
 سایت فارسی RTL ثبت درخواست تعمیر پکیج، آماده استقرار روی هاست اشتراکی cPanel
 (میزبان‌فا و مشابه). چون این هاست‌ها دسترسی SSH مستقیم نمی‌دهند، همه چیز برای
@@ -122,8 +122,8 @@ nano .env
 ```ini
 DJANGO_SECRET_KEY=<یک رشته تصادفی بلند — دستور تولید داخل فایل هست>
 DJANGO_DEBUG=False
-DJANGO_ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
-DJANGO_CSRF_TRUSTED_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
+DJANGO_ALLOWED_HOSTS=amoziservice.com,www.amoziservice.com
+DJANGO_CSRF_TRUSTED_ORIGINS=https://amoziservice.com,https://www.amoziservice.com
 DATABASE_URL=mysql://cpaneluser_ostauser:DB-PASSWORD@localhost:3306/cpaneluser_ostadb
 KAVENEGAR_ENABLED=False
 ```

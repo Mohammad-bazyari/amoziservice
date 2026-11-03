@@ -136,71 +136,120 @@
 
     <div class="relative">
       <!-- Highlight card: mobile & tablet -->
-      <div class="relative mx-auto w-full max-w-md rounded-3xl bg-white/10 p-5 ring-1 ring-white/20 backdrop-blur-md lg:hidden shadow-xl surface-sheen">
+      <div class="relative mx-auto w-full max-w-md rounded-3xl bg-white/10 p-5 ring-1 ring-white/20 backdrop-blur-md lg:hidden shadow-xl">
         <div class="flex items-center justify-between pb-3 border-b border-white/15">
           <div class="flex items-center gap-2.5">
             <span class="badge-pulse-dot text-emerald-400"></span>
-            <span class="text-xs font-bold text-emerald-300">سرویس‌کاران فعال در ۲۲ منطقه</span>
+            <span class="text-xs font-bold text-emerald-300">{{ hero_showcase.badge_text|default:"سرویس‌کاران فعال و آماده اعزام" }}</span>
           </div>
-          <span class="text-[11px] font-medium text-brand-200">اعزام در سریع‌ترین زمان</span>
+          <span class="text-[11px] font-medium text-brand-200">{{ hero_showcase.badge_subtext|default:"تهران و حومه" }}</span>
         </div>
         <div class="mt-4 flex items-center gap-3">
-          <span class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-cta-500 text-slate-950 shadow-lg shadow-cta-500/30">{% lucide "flame" "w-6 h-6" %}</span>
+          <span class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-cta-500 text-slate-950 shadow-lg shadow-cta-500/30">
+            {% lucide hero_showcase.main_icon|default:"flame" "w-6 h-6" %}
+          </span>
           <div>
-            <p class="text-sm font-extrabold text-white">عیب‌یابی تخصصی در محل</p>
-            <p class="mt-0.5 text-xs leading-5 text-brand-100/80">بررسی کامل مدار گرمایش، مشعل، برد الکترونیکی و شیرها</p>
+            <p class="text-sm font-extrabold text-white">{{ hero_showcase.main_title|default:"عیب‌یابی تخصصی در محل" }}</p>
+            <p class="mt-0.5 text-xs leading-5 text-brand-100/80">{{ hero_showcase.main_description|default:"بررسی کامل مدار گرمایش، مشعل، برد الکترونیکی و شیرها" }}</p>
           </div>
         </div>
         <div class="mt-4 grid grid-cols-3 gap-2 text-center">
-          <div class="rounded-xl bg-white/10 px-2 py-3 ring-1 ring-white/10 transition hover:bg-white/15">
-            {% lucide "gauge" "mx-auto w-5 h-5 text-cta-400" %}
-            <p class="mt-1.5 text-[11px] font-bold text-white">افت فشار آب</p>
-          </div>
-          <div class="rounded-xl bg-white/10 px-2 py-3 ring-1 ring-white/10 transition hover:bg-white/15">
-            {% lucide "droplets" "mx-auto w-5 h-5 text-cta-400" %}
-            <p class="mt-1.5 text-[11px] font-bold text-white">رفع نشتی مدار</p>
-          </div>
-          <div class="rounded-xl bg-white/10 px-2 py-3 ring-1 ring-white/10 transition hover:bg-white/15">
-            {% lucide "zap" "mx-auto w-5 h-5 text-cta-400" %}
-            <p class="mt-1.5 text-[11px] font-bold text-white">رفع ارورهای برد</p>
-          </div>
+          <a href="{{ hero_showcase.get_button1_url }}"
+             class="group flex flex-col justify-between rounded-xl bg-white/10 p-2.5 ring-1 ring-white/10 transition-all duration-200 hover:bg-white/20 hover:ring-cta-400/50 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta-400"
+             aria-label="{{ hero_showcase.button1_title|default:'افت فشار آب' }} — {{ hero_showcase.button1_subtitle|default:'تست منبع انبساط' }}">
+            <div>
+              {% lucide hero_showcase.button1_icon|default:"gauge" "mx-auto w-5 h-5 text-cta-400 transition-transform duration-200 group-hover:scale-110" %}
+              <p class="mt-1.5 text-[11px] font-bold text-white transition-colors group-hover:text-cta-300">{{ hero_showcase.button1_title|default:"افت فشار آب" }}</p>
+              <p class="mt-0.5 text-[9px] text-brand-200">{{ hero_showcase.button1_subtitle|default:"تست منبع انبساط" }}</p>
+            </div>
+            <span class="mt-1.5 inline-flex items-center justify-center gap-0.5 text-[9px] font-bold text-cta-400">
+              راهنما {% lucide "chevron-left" "w-2.5 h-2.5" %}
+            </span>
+          </a>
+          <a href="{{ hero_showcase.get_button2_url }}"
+             class="group flex flex-col justify-between rounded-xl bg-white/10 p-2.5 ring-1 ring-white/10 transition-all duration-200 hover:bg-white/20 hover:ring-cta-400/50 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta-400"
+             aria-label="{{ hero_showcase.button2_title|default:'رفع نشتی آب' }} — {{ hero_showcase.button2_subtitle|default:'آب‌بندی اتصالات' }}">
+            <div>
+              {% lucide hero_showcase.button2_icon|default:"droplets" "mx-auto w-5 h-5 text-cta-400 transition-transform duration-200 group-hover:scale-110" %}
+              <p class="mt-1.5 text-[11px] font-bold text-white transition-colors group-hover:text-cta-300">{{ hero_showcase.button2_title|default:"رفع نشتی آب" }}</p>
+              <p class="mt-0.5 text-[9px] text-brand-200">{{ hero_showcase.button2_subtitle|default:"آب‌بندی اتصالات" }}</p>
+            </div>
+            <span class="mt-1.5 inline-flex items-center justify-center gap-0.5 text-[9px] font-bold text-cta-400">
+              راهنما {% lucide "chevron-left" "w-2.5 h-2.5" %}
+            </span>
+          </a>
+          <a href="{{ hero_showcase.get_button3_url }}"
+             class="group flex flex-col justify-between rounded-xl bg-white/10 p-2.5 ring-1 ring-white/10 transition-all duration-200 hover:bg-white/20 hover:ring-cta-400/50 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta-400"
+             aria-label="{{ hero_showcase.button3_title|default:'رفع ارور برد' }} — {{ hero_showcase.button3_subtitle|default:'عیب‌یابی الکترونیک' }}">
+            <div>
+              {% lucide hero_showcase.button3_icon|default:"zap" "mx-auto w-5 h-5 text-cta-400 transition-transform duration-200 group-hover:scale-110" %}
+              <p class="mt-1.5 text-[11px] font-bold text-white transition-colors group-hover:text-cta-300">{{ hero_showcase.button3_title|default:"رفع ارور برد" }}</p>
+              <p class="mt-0.5 text-[9px] text-brand-200">{{ hero_showcase.button3_subtitle|default:"عیب‌یابی الکترونیک" }}</p>
+            </div>
+            <span class="mt-1.5 inline-flex items-center justify-center gap-0.5 text-[9px] font-bold text-cta-400">
+              راهنما {% lucide "chevron-left" "w-2.5 h-2.5" %}
+            </span>
+          </a>
         </div>
       </div>
 
       <!-- Luxury showcase card: desktop -->
       <div class="relative hidden lg:block">
         <div class="absolute -inset-6 rounded-[2.5rem] bg-brand-400/10 blur-2xl"></div>
-        <div class="relative w-full max-w-md rounded-3xl border border-white/20 bg-white/10 p-6 backdrop-blur-xl shadow-2xl surface-sheen">
+        <div class="relative w-full max-w-md rounded-3xl border border-white/20 bg-white/10 p-6 backdrop-blur-xl shadow-2xl">
           <div class="flex items-center justify-between pb-4 border-b border-white/15">
             <div class="flex items-center gap-2.5">
               <span class="badge-pulse-dot text-emerald-400"></span>
-              <span class="text-xs font-bold text-emerald-300">سرویس‌کاران فعال و آماده اعزام</span>
+              <span class="text-xs font-bold text-emerald-300">{{ hero_showcase.badge_text|default:"سرویس‌کاران فعال و آماده اعزام" }}</span>
             </div>
-            <span class="rounded-full bg-white/10 px-2.5 py-0.5 text-[11px] font-bold text-brand-200">تهران و حومه</span>
+            <span class="rounded-full bg-white/10 px-2.5 py-0.5 text-[11px] font-bold text-brand-200">{{ hero_showcase.badge_subtext|default:"تهران و حومه" }}</span>
           </div>
           <div class="mt-5 flex items-center gap-3.5">
-            <span class="grid h-13 w-13 shrink-0 place-items-center rounded-2xl bg-cta-500 text-slate-950 shadow-xl shadow-cta-500/35">{% lucide "flame" "w-7 h-7" %}</span>
+            <span class="grid h-13 w-13 shrink-0 place-items-center rounded-2xl bg-cta-500 text-slate-950 shadow-xl shadow-cta-500/35">
+              {% lucide hero_showcase.main_icon|default:"flame" "w-7 h-7" %}
+            </span>
             <div>
-              <p class="text-base font-extrabold text-white">عیب‌یابی دقیق دستگاه در محل</p>
-              <p class="mt-1 text-xs leading-5 text-brand-100/80">تست کامل راندمان گرمایش، پمپ، شیر گاز، سنسورها و قطعات یدکی اصل</p>
+              <p class="text-base font-extrabold text-white">{{ hero_showcase.main_title|default:"عیب‌یابی دقیق دستگاه در محل" }}</p>
+              <p class="mt-1 text-xs leading-5 text-brand-100/80">{{ hero_showcase.main_description|default:"تست کامل راندمان گرمایش، پمپ، شیر گاز، سنسورها و قطعات یدکی اصل" }}</p>
             </div>
           </div>
           <div class="mt-5 grid grid-cols-3 gap-3 text-center">
-            <div class="rounded-2xl border border-white/15 bg-white/10 p-3.5 transition duration-200 hover:-translate-y-0.5 hover:bg-white/15 hover:border-cta-400/40">
-              {% lucide "gauge" "mx-auto w-6 h-6 text-cta-400" %}
-              <p class="mt-2 text-xs font-bold text-white">افت فشار آب</p>
-              <p class="mt-0.5 text-[10px] text-brand-200">تست منبع انبساط</p>
-            </div>
-            <div class="rounded-2xl border border-white/15 bg-white/10 p-3.5 transition duration-200 hover:-translate-y-0.5 hover:bg-white/15 hover:border-cta-400/40">
-              {% lucide "droplets" "mx-auto w-6 h-6 text-cta-400" %}
-              <p class="mt-2 text-xs font-bold text-white">رفع نشتی آب</p>
-              <p class="mt-0.5 text-[10px] text-brand-200">آب‌بندی اتصالات</p>
-            </div>
-            <div class="rounded-2xl border border-white/15 bg-white/10 p-3.5 transition duration-200 hover:-translate-y-0.5 hover:bg-white/15 hover:border-cta-400/40">
-              {% lucide "zap" "mx-auto w-6 h-6 text-cta-400" %}
-              <p class="mt-2 text-xs font-bold text-white">رفع ارور برد</p>
-              <p class="mt-0.5 text-[10px] text-brand-200">عیب‌یابی الکترونیک</p>
-            </div>
+            <a href="{{ hero_showcase.get_button1_url }}"
+               class="group relative flex flex-col justify-between rounded-2xl border border-white/15 bg-white/10 p-3.5 transition-all duration-200 hover:-translate-y-1 hover:bg-white/20 hover:border-cta-400/60 hover:shadow-lg active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta-400"
+               aria-label="{{ hero_showcase.button1_title|default:'افت فشار آب' }} — {{ hero_showcase.button1_subtitle|default:'تست منبع انبساط' }}">
+              <div>
+                {% lucide hero_showcase.button1_icon|default:"gauge" "mx-auto w-6 h-6 text-cta-400 transition-transform duration-200 group-hover:scale-110" %}
+                <p class="mt-2 text-xs font-bold text-white transition-colors group-hover:text-cta-300">{{ hero_showcase.button1_title|default:"افت فشار آب" }}</p>
+                <p class="mt-0.5 text-[10px] text-brand-200">{{ hero_showcase.button1_subtitle|default:"تست منبع انبساط" }}</p>
+              </div>
+              <span class="mt-3 inline-flex items-center justify-center gap-1 text-[10px] font-bold text-cta-300 opacity-90 transition-all duration-200 group-hover:opacity-100 group-hover:text-cta-200">
+                مطالعه راهنما {% lucide "chevron-left" "w-3 h-3 transition-transform duration-200 group-hover:-translate-x-1" %}
+              </span>
+            </a>
+            <a href="{{ hero_showcase.get_button2_url }}"
+               class="group relative flex flex-col justify-between rounded-2xl border border-white/15 bg-white/10 p-3.5 transition-all duration-200 hover:-translate-y-1 hover:bg-white/20 hover:border-cta-400/60 hover:shadow-lg active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta-400"
+               aria-label="{{ hero_showcase.button2_title|default:'رفع نشتی آب' }} — {{ hero_showcase.button2_subtitle|default:'آب‌بندی اتصالات' }}">
+              <div>
+                {% lucide hero_showcase.button2_icon|default:"droplets" "mx-auto w-6 h-6 text-cta-400 transition-transform duration-200 group-hover:scale-110" %}
+                <p class="mt-2 text-xs font-bold text-white transition-colors group-hover:text-cta-300">{{ hero_showcase.button2_title|default:"رفع نشتی آب" }}</p>
+                <p class="mt-0.5 text-[10px] text-brand-200">{{ hero_showcase.button2_subtitle|default:"آب‌بندی اتصالات" }}</p>
+              </div>
+              <span class="mt-3 inline-flex items-center justify-center gap-1 text-[10px] font-bold text-cta-300 opacity-90 transition-all duration-200 group-hover:opacity-100 group-hover:text-cta-200">
+                مطالعه راهنما {% lucide "chevron-left" "w-3 h-3 transition-transform duration-200 group-hover:-translate-x-1" %}
+              </span>
+            </a>
+            <a href="{{ hero_showcase.get_button3_url }}"
+               class="group relative flex flex-col justify-between rounded-2xl border border-white/15 bg-white/10 p-3.5 transition-all duration-200 hover:-translate-y-1 hover:bg-white/20 hover:border-cta-400/60 hover:shadow-lg active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta-400"
+               aria-label="{{ hero_showcase.button3_title|default:'رفع ارور برد' }} — {{ hero_showcase.button3_subtitle|default:'عیب‌یابی الکترونیک' }}">
+              <div>
+                {% lucide hero_showcase.button3_icon|default:"zap" "mx-auto w-6 h-6 text-cta-400 transition-transform duration-200 group-hover:scale-110" %}
+                <p class="mt-2 text-xs font-bold text-white transition-colors group-hover:text-cta-300">{{ hero_showcase.button3_title|default:"رفع ارور برد" }}</p>
+                <p class="mt-0.5 text-[10px] text-brand-200">{{ hero_showcase.button3_subtitle|default:"عیب‌یابی الکترونیک" }}</p>
+              </div>
+              <span class="mt-3 inline-flex items-center justify-center gap-1 text-[10px] font-bold text-cta-300 opacity-90 transition-all duration-200 group-hover:opacity-100 group-hover:text-cta-200">
+                مطالعه راهنما {% lucide "chevron-left" "w-3 h-3 transition-transform duration-200 group-hover:-translate-x-1" %}
+              </span>
+            </a>
           </div>
         </div>
       </div>

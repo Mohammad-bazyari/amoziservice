@@ -2,7 +2,14 @@
 from django.shortcuts import render
 
 from apps.brands.models import Brand
-from apps.content.models import AboutPageContent, Article, ContactPageContent, FAQ, HomePageContent
+from apps.content.models import (
+    AboutPageContent,
+    Article,
+    ContactPageContent,
+    FAQ,
+    HeroShowcase,
+    HomePageContent,
+)
 from apps.services.models import Service
 
 
@@ -12,6 +19,7 @@ def home(request):
         "home.html",
         {
             "home_content": HomePageContent.objects.first(),
+            "hero_showcase": HeroShowcase.load(),
             "services": Service.objects.filter(active=True)[:6],
             # Brands belong to services; the homepage strip shows the ones
             # the business is known for (its first/primary services' brands).

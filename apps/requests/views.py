@@ -39,20 +39,18 @@ from apps.requests.models import RequestImage, ServiceRequest
 
 logger = logging.getLogger(__name__)
 
-STEPS = ["service", "problem", "customer", "address", "images", "review"]
+STEPS = ["service", "problem", "customer", "address", "review"]
 STEP_FORMS = {
     "service": StepServiceForm,
     "problem": StepProblemForm,
     "customer": StepCustomerForm,
     "address": StepAddressForm,
-    "images": StepImagesForm,
 }
 STEP_TITLES = {
     "service": "خدمت",
     "problem": "برند و مشکل",
     "customer": "اطلاعات تماس",
     "address": "آدرس",
-    "images": "تصاویر",
     "review": "بازبینی",
 }
 
@@ -110,6 +108,10 @@ def start(request):
 
 
 def step_view(request, step):
+    if step == "images":
+        # Legacy step redirect: images are now uploaded during the problem step
+        return redirect("requests:review")
+
     if step not in STEP_FORMS:  # review is not a form step
         raise Http404(txt.STEP_INVALID)
 
@@ -117,7 +119,7 @@ def step_view(request, step):
     required_before = STEPS[: STEPS.index(step)]
     store = _store(request)
     for needed in required_before:
-        if needed != "images" and not store.get(needed):
+        if not store.get(needed):
             return redirect(_step_url(needed))
 
     # The problem step is scoped to the service chosen in step 1.
@@ -142,24 +144,25 @@ def step_view(request, step):
         "current_index": step_index,
         "max_images": settings.REQUEST_IMAGE_MAX_COUNT,
         "max_image_mb": settings.REQUEST_IMAGE_MAX_BYTES // (1024 * 1024),
+        "uploaded_images": request.session.get(SESSION_IMAGES_KEY, []),
     }
 
     if request.method == "POST" and form.is_valid():
         cd = form.cleaned_data
-        if step == "images":
-            saved = _store_uploaded_files(request)
-            if saved is None:
-                # Files failed validation; re-render the step with errors.
-                return render(request, "requests/wizard.html", template_ctx)
-            request.session[SESSION_IMAGES_KEY] = (
-                request.session.get(SESSION_IMAGES_KEY, []) + saved
-            )
-            request.session.modified = True
-        elif step == "service":
+        if step == "service":
             _save_store(request, {**store, step: {
                 "service_choice": cd.get("service_choice", ""),
             }})
         elif step == "problem":
+            saved = _store_uploaded_files(request)
+            if saved is None:
+                # Files failed validation; re-render the step with errors.
+                return render(request, "requests/wizard.html", template_ctx)
+            if saved:
+                request.session[SESSION_IMAGES_KEY] = (
+                    request.session.get(SESSION_IMAGES_KEY, []) + saved
+                )
+                request.session.modified = True
             _save_store(request, {**store, step: {
                 "brand_choice": cd.get("brand_choice", ""),
                 "other_brand_name": (cd.get("other_brand_name") or "").strip(),

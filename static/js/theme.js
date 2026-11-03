@@ -1,5 +1,5 @@
 /**
- * Osta Service - Expanding Circular Theme Transition (Light / Dark)
+ * Amozi Service - Expanding Circular Theme Transition (Light / Dark)
  * 
  * - Full light/dark mode persistence via localStorage ('theme').
  * - Respects OS prefers-color-scheme on initial visit when no preference is saved.

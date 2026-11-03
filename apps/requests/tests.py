@@ -267,17 +267,19 @@ class WizardFlowTests(TestCase):
 
     def test_image_upload_happy_path(self):
         self._post_step("service", {"service_choice": self.svc_pk})
-        self._post_step("problem", {"brand_choice": self.butane_pk, "problem_choice": self.prob_pk})
-        self._post_step("customer", {"customer_name": "تست", "customer_phone": "09121234567"})
-        self._post_step("address", {"province": "تهران", "city": "تهران", "address": "آدرس"})
         with self.settings(DATA_UPLOAD_MAX_MEMORY_SIZE=10 * 1024 * 1024):
-            self.client.post(
-                reverse("requests:step", args=["images"]),
+            resp = self.client.post(
+                reverse("requests:step", args=["problem"]),
                 {
-                    "_step": "images",
+                    "_step": "problem",
+                    "brand_choice": self.butane_pk,
+                    "problem_choice": self.prob_pk,
                     "images": SimpleUploadedFile("error.png", make_png_bytes(), content_type="image/png"),
                 },
             )
+            self.assertEqual(resp.status_code, 302)
+        self._post_step("customer", {"customer_name": "تست", "customer_phone": "09121234567"})
+        self._post_step("address", {"province": "تهران", "city": "تهران", "address": "آدرس"})
         self.client.post(reverse("requests:submit"), follow=True)
         req = ServiceRequest.objects.first()
         self.assertEqual(RequestImage.objects.filter(request=req).count(), 1)
@@ -287,16 +289,16 @@ class WizardFlowTests(TestCase):
 
     def test_executable_upload_rejected(self):
         self._post_step("service", {"service_choice": self.svc_pk})
-        self._post_step("problem", {"brand_choice": self.butane_pk, "problem_choice": self.prob_pk})
-        self._post_step("customer", {"customer_name": "تست", "customer_phone": "09121234567"})
-        self._post_step("address", {"province": "تهران", "city": "تهران", "address": "آدرس"})
-        self.client.post(
-            reverse("requests:step", args=["images"]),
+        resp = self.client.post(
+            reverse("requests:step", args=["problem"]),
             {
-                "_step": "images",
+                "_step": "problem",
+                "brand_choice": self.butane_pk,
+                "problem_choice": self.prob_pk,
                 "images": SimpleUploadedFile("virus.exe", b"MZ\x90\x00", content_type="application/x-msdownload"),
             },
         )
+        self.assertEqual(resp.status_code, 200)
         self.assertEqual(ServiceRequest.objects.count(), 0)
         self.assertEqual(len(self.client.session.get("request_wizard_images", [])), 0)
 
@@ -485,7 +487,7 @@ class PerServiceWizardOptionsTests(TestCase):
         resp = self._open_problem_step(self.water)
         self.assertContains(resp, "شن‌ریزی دارد")
         self.assertNotContains(resp, "گرمایش ندارد")
-        self.assertContains(resp, "مشکل سرویس آب تصفیه‌کن")
+        self.assertContains(resp, "مشکل آب تصفیه‌کن")
 
     def test_per_service_brands_shown(self):
         resp = self._open_problem_step(self.water)
@@ -538,12 +540,12 @@ class UnconfiguredServiceFreeTextTests(TestCase):
         resp = self._open()
         self.assertEqual(resp.status_code, 200)
         self.assertNotContains(resp, "<select name=\"brand_choice\"")  # no visible list widget
-        self.assertContains(resp, "برند سرویس جopoosh شما")
+        self.assertContains(resp, "برند جopoosh شما")
 
     def test_problem_free_text_instead_of_list(self):
         resp = self._open()
         self.assertNotContains(resp, 'type="radio" name="problem_choice"')
-        self.assertContains(resp, "مشکل سرویس جopoosh")
+        self.assertContains(resp, "مشکل جopoosh")
 
     def test_submit_with_free_text_creates_valid_step_data(self):
         _set_wizard_service(self.client, self.fresh)

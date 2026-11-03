@@ -14,14 +14,14 @@ def _brand_fallback_slug():
     from apps.core.models import SiteSettings
 
     settings = SiteSettings.objects.first()
-    brand = "ostad"
+    brand = "amozi"
     if settings is not None:
         brand = (
             slugify(
                 (settings.business_name or "").replace("\u200c", " "),
                 allow_unicode=True,
             )
-            or "ostad"
+            or "amozi"
         )
     return f"{brand}-servis"
 

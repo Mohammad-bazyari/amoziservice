@@ -12,7 +12,7 @@ class SiteSettings(TimeStampedModel):
     read phone/brand/etc. from this object instead of hardcoding.
     """
 
-    business_name = models.CharField("نام کسب‌وکار", max_length=120, default="اوستا سرویس")
+    business_name = models.CharField("نام کسب‌وکار", max_length=120, default="آموزی سرویس")
     business_phone = models.CharField("شماره تماس", max_length=20, default="09120832480")
     business_email = models.EmailField("ایمیل", blank=True, default="")
     province = models.CharField("استان", max_length=60, default="تهران")
@@ -29,7 +29,7 @@ class SiteSettings(TimeStampedModel):
     default_seo_title = models.CharField(
         "عنوان پیش‌فرض سئو",
         max_length=180,
-        default="اوستا سرویس | تعمیر تخصصی پکیج در تهران",
+        default="آموزی سرویس | تعمیر تخصصی پکیج در تهران",
     )
     default_meta_description = models.TextField(
         "توضیح متای پیش‌فرض",
